@@ -1,8 +1,8 @@
 <project>
 	<extend>jira-project.xml</extend>
-	<groupId>innofabri</groupId>
-	<id>jira-burndown-chart</id>
-	<name>JiraBurndownChart</name>
+	<groupId>agile-plugins</groupId>
+	<artifactId>agile-plugins</artifactId>
+	<name>Agile Plugins for Jira</name>
 	<currentVersion>0.1</currentVersion>
 	<dependencies>
 		<dependency>
