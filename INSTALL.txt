@@ -1,0 +1,31 @@
+
+INSTALL
+===========================
+The .jar file should be placed in /WEB-INF/lib of the expanded jira webapplication
+in addition to any other libraries required by the plugin. (See maven.xml)
+
+For the Portlet icons and thumbnails to work you should expand /portlet/** from the 
+.jar file to the expanded jira webapplication /portlet directory so the images
+can be accessed by the browser.
+
+Currently the database tables have to be created manually. You should run 
+createTables.sql against the java:comp/env/JiraDS database to create the necessary
+tables to hold the workload history.
+
+You probably need to restart the webapp for the libraries to be available. You can check
+whether or not the plugins (and thus the jar) have been loaded from 
+ADMINISTRATION - SYSTEM - Plugins. You should see "LaughingPanda" under the installed 
+plugins.
+
+Jira administration:
+--------------------
+The workload history is collected by a Jira Service implementation which stores 
+snapshots of the workload to database. This service can be started from
+ADMINISTRATION - SYSTEM - Services
+
+Add Service
+Name: <you choose>
+Class: com.laughingpanda.jira.VersionWorkloadHistoryService
+Delay: <you choose>
+
+You should be ready rock.

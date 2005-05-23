@@ -1,0 +1,43 @@
+<!-- the plugin key must be unique, think of it as the 'package' of the plugin -->
+<atlassian-plugin key="com.laughingpanda.jira" name="LaughingPanda">
+	<!-- a short block describing the plugin itself -->
+	<plugin-info>
+		<description>LaughingPanda</description>
+		<version>1.0</version>
+		<application-version min="3.0" max="3.0"/>
+		<vendor name="Gloria Mundi" url=""/>
+	</plugin-info>
+	<portlet key="versionWorkloadChart" name="Chart Portlet" class="com.laughingpanda.jira.ChartPortlet">
+		<description>Renders a burndown chart of a version work history.</description>
+		<label key="Chart Portlet" />
+		<thumbnail>portlets/dashboard/thumbnails/laughingpanda/burndown.png</thumbnail>
+		<permission>assignable</permission>
+		<properties>
+			<property>
+				<key>chart.width</key>
+				<name>Width</name>
+				<description>Width of the Chart</description>
+				<type>long</type>
+				<default>500</default>
+			</property>
+			<property>
+				<key>chart.height</key>
+				<name>Height</name>
+				<description>Height of the Chart</description>
+				<type>long</type>
+				<default>300</default>
+			</property>
+			<property>
+				<key>versionId</key>
+                <name>Version</name>
+                <description>Version for the Chart</description>
+                <type>select</type>
+                <values class="com.laughingpanda.jira.AllVersionValuesGenerator"/>
+			</property>			
+		</properties>
+	</portlet>
+	<component key="versionWorkloadHistoryManager" name="Version Workload History Manager" class="com.laughingpanda.jira.VersionWorkloadHistoryManagerImpl">
+		<interface>com.laughingpanda.jira.VersionWorkloadHistoryManager</interface>
+	</component>	
+</atlassian-plugin>
+
