@@ -2,15 +2,12 @@
 package com.laughingpanda.jira;
 
 import java.awt.Color;
-import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
-import javassist.CannotCompileException;
-import javassist.NotFoundException;
 import junit.framework.TestCase;
 
 import org.jfree.chart.JFreeChart;
@@ -21,7 +18,9 @@ import com.laughingpanda.mocked.MockFactory;
 public class VersionHistoryChartFactoryTest extends TestCase {       
     
     static private final SimpleDateFormat format = new SimpleDateFormat("HH:mm dd.MM.yyyy");
-    VersionHistoryChartFactory factory;
+    static private final Color RELEASE_COLOR = new Color(224,224,224);
+
+    private VersionHistoryChartFactory factory;
     private MockVersion version;
     
     static private Date parse(String date) {
@@ -65,12 +64,14 @@ public class VersionHistoryChartFactoryTest extends TestCase {
             return new Long(100);
         };        
         
+        public boolean archived;
         public boolean isArchived() {
-            return false;
+            return archived;
         }
         
+        public boolean released;
         public boolean isReleased() {
-            return false;
+            return released;
         }
         
         public String getName() {
@@ -86,7 +87,7 @@ public class VersionHistoryChartFactoryTest extends TestCase {
     
     public void setUp() throws Exception {
         super.setUp();
-        VersionWorkloadHistoryManager manager = (VersionWorkloadHistoryManager) MockFactory.makeMock(MockManager.class);
+        VersionWorkloadHistoryManager manager = new MockManager();
         factory = new VersionHistoryChartFactory(manager);
         version = (MockVersion) MockFactory.makeMock(MockVersion.class);   
     }
@@ -102,5 +103,19 @@ public class VersionHistoryChartFactoryTest extends TestCase {
     public void testWithNullReleaseDate() {
         version.releaseDate = null;
         JFreeChart chart = factory.makeChart(version);
+    }
+    
+    public void testArchivedBackground() {
+        version.archived = true;
+        JFreeChart chart = factory.makeChart(version);        
+        assertEquals("Archived should have gray background.", RELEASE_COLOR, chart.getPlot().getBackgroundPaint());
+        assertTrue("Archived should be included in title", chart.getTitle().getText().indexOf("[archived]") != -1);
+    }
+    
+    public void testReleasedBackground() {
+        version.released = true;
+        JFreeChart chart = factory.makeChart(version);        
+        assertEquals("Released should have gray background.", RELEASE_COLOR, chart.getPlot().getBackgroundPaint());
+        assertTrue("Released should be included in title", chart.getTitle().getText().indexOf("[released]") != -1);
     }
 }
