@@ -17,6 +17,20 @@ whether or not the plugins (and thus the jar) have been loaded from
 ADMINISTRATION - SYSTEM - Plugins. You should see "LaughingPanda" under the installed 
 plugins.
 
+You need to add the DisplayServlet which serves the generated images to web.xml of the
+Jira application and assign it to use 
+
+    <servlet>
+	    <servlet-name>DisplayChart</servlet-name>
+	    <servlet-class>org.jfree.chart.servlet.DisplayChart</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+	    <servlet-name>DisplayChart</servlet-name>
+	    <url-pattern>/servlet/DisplayChart</url-pattern>
+    </servlet-mapping>
+
+
 Jira administration:
 --------------------
 The workload history is collected by a Jira Service implementation which stores 

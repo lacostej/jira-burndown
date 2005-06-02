@@ -77,7 +77,7 @@ public class ChartPortlet extends PortletImpl {
     private String makeHtml(ChartRenderingInfo info, String filename) throws IOException {
         StringWriter out = new StringWriter();
         ChartUtilities.writeImageMap(new PrintWriter(out), filename, info);
-        out.write("<img src=\"/servlet/DisplayChart?filename=" + filename + "\" border=0 usemap=\"#" + filename + "\">");
+        out.write("<img src=\"/jira/servlet/DisplayChart?filename=" + filename + "\" border=0 usemap=\"#" + filename + "\">");
         return out.toString();
     }
 

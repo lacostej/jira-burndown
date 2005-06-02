@@ -45,7 +45,7 @@ public class AllVersionValuesGenerator implements ValuesGenerator {
     }
 
     public Map getValues(Map params) {
-        Map selection = new SequencedHashMap();
+        Map<Long,String> selection = new SequencedHashMap();
         try {
             Collection<GenericValue> projects = projectManager.getProjects();
             for (GenericValue project : projects) {

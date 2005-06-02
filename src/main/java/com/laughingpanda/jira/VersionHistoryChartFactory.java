@@ -7,7 +7,6 @@ package com.laughingpanda.jira;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Shape;
 import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.util.List;
@@ -17,7 +16,6 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.DateAxis;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.SegmentedTimeline;
-import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.labels.StandardXYToolTipGenerator;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
@@ -35,37 +33,27 @@ class VersionHistoryChartFactory {
     
     private final VersionWorkloadHistoryManager historyManager;
 
-    public VersionHistoryChartFactory(VersionWorkloadHistoryManager manager) {
+    protected VersionHistoryChartFactory(VersionWorkloadHistoryManager manager) {
         this.historyManager = manager;        
     }   
     
+    /**
+     * Creates a chart from the version.
+     */
     protected JFreeChart makeChart(Version version) {
-        XYSeriesCollection xyDataset = new XYSeriesCollection();
-        List<VersionWorkloadHistoryPoint> workload = historyManager.getWorkload(version.getId()); 
-        xyDataset.addSeries(makeSeries(workload, new RemainingTime()));
-        xyDataset.addSeries(makeSeries(workload, new TotalTime()));
+        XYSeriesCollection xyDataset = createSeries(version);        
+        StandardXYItemRenderer renderer = createRenderer();
         
-        addReleaseMarker(version, xyDataset);
-        
-        StandardXYToolTipGenerator ttg = new StandardXYToolTipGenerator(
-                StandardXYToolTipGenerator.DEFAULT_TOOL_TIP_FORMAT,
-                LONG_TIP, NumberFormat.getInstance());
-        
-        ValueAxis timeAxis = new DateAxis("", SegmentedTimeline.newMondayThroughFridayTimeline());
-        
+        DateAxis timeAxis = new DateAxis("");
+        timeAxis.setTimeline(SegmentedTimeline.newMondayThroughFridayTimeline());        
         NumberAxis valueAxis = new NumberAxis("Hours of Work");
         valueAxis.setAutoRangeIncludesZero(true);
-                
-        StandardXYItemRenderer renderer = new StandardXYItemRenderer(
-                StandardXYItemRenderer.LINES,
-                ttg, new StandardXYURLGenerator("#"));
-        renderer.setShapesFilled(true);
-        
-        renderer.setSeriesShape(2, ShapeUtils.createUpTriangle(5f));
-        renderer.setSeriesStroke(0,new BasicStroke(2f));
-        renderer.setSeriesStroke(1,new BasicStroke(2f));
-        XYPlot plot = new XYPlot(xyDataset, timeAxis, valueAxis, renderer);
-        
+
+        XYPlot plot = new XYPlot(xyDataset, timeAxis, valueAxis, renderer);        
+        return createChart(version, plot);
+    }
+
+    private JFreeChart createChart(Version version, XYPlot plot) {
         JFreeChart chart = new JFreeChart("", JFreeChart.DEFAULT_TITLE_FONT, plot, false);
         chart.setBackgroundPaint(Color.white);
         if (version.isArchived()) {
@@ -78,6 +66,31 @@ class VersionHistoryChartFactory {
             chart.setTitle(version.getName());
         }
         return chart;
+    }
+
+    private StandardXYItemRenderer createRenderer() {
+        StandardXYToolTipGenerator ttg = new StandardXYToolTipGenerator(
+                StandardXYToolTipGenerator.DEFAULT_TOOL_TIP_FORMAT,
+                LONG_TIP, NumberFormat.getInstance());
+        
+                
+        StandardXYItemRenderer renderer = new StandardXYItemRenderer(
+                StandardXYItemRenderer.LINES,
+                ttg, new StandardXYURLGenerator("#"));
+        renderer.setShapesFilled(true);        
+        renderer.setSeriesShape(2, ShapeUtils.createUpTriangle(5f));
+        renderer.setSeriesStroke(0,new BasicStroke(2f));
+        renderer.setSeriesStroke(1,new BasicStroke(2f));
+        return renderer;
+    }
+
+    private XYSeriesCollection createSeries(Version version) {
+        List<VersionWorkloadHistoryPoint> workload = historyManager.getWorkload(version.getId()); 
+        XYSeriesCollection xyDataset = new XYSeriesCollection();
+        xyDataset.addSeries(makeSeries(workload, new RemainingTime()));
+        xyDataset.addSeries(makeSeries(workload, new TotalTime()));        
+        addReleaseMarker(version, xyDataset);
+        return xyDataset;
     }
 
     private void addReleaseMarker(Version version, XYSeriesCollection xyDataset) {
