@@ -5,7 +5,9 @@
  */
 package com.laughingpanda.jira;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Shape;
 import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.util.List;
@@ -14,12 +16,15 @@ import java.util.Locale;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.DateAxis;
 import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.axis.SegmentedTimeline;
+import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.labels.StandardXYToolTipGenerator;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
 import org.jfree.chart.urls.StandardXYURLGenerator;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
+import org.jfree.util.ShapeUtils;
 
 import com.atlassian.jira.project.version.Version;
 
@@ -46,15 +51,19 @@ class VersionHistoryChartFactory {
                 StandardXYToolTipGenerator.DEFAULT_TOOL_TIP_FORMAT,
                 LONG_TIP, NumberFormat.getInstance());
         
-        DateAxis timeAxis = new DateAxis("");        
+        ValueAxis timeAxis = new DateAxis("", SegmentedTimeline.newMondayThroughFridayTimeline());
         
         NumberAxis valueAxis = new NumberAxis("Hours of Work");
         valueAxis.setAutoRangeIncludesZero(true);
                 
         StandardXYItemRenderer renderer = new StandardXYItemRenderer(
-                StandardXYItemRenderer.LINES + StandardXYItemRenderer.SHAPES,
+                StandardXYItemRenderer.LINES,
                 ttg, new StandardXYURLGenerator("#"));
         renderer.setShapesFilled(true);
+        
+        renderer.setSeriesShape(2, ShapeUtils.createUpTriangle(5f));
+        renderer.setSeriesStroke(0,new BasicStroke(2f));
+        renderer.setSeriesStroke(1,new BasicStroke(2f));
         XYPlot plot = new XYPlot(xyDataset, timeAxis, valueAxis, renderer);
         
         JFreeChart chart = new JFreeChart("", JFreeChart.DEFAULT_TITLE_FONT, plot, false);
