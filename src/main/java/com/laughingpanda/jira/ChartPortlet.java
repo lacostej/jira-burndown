@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.ResourceBundle;
 
 import org.apache.log4j.Category;
 import org.apache.log4j.Priority;
@@ -26,6 +27,7 @@ import com.atlassian.jira.security.JiraAuthenticationContext;
 
 public class ChartPortlet extends PortletImpl {
 
+    private final static ResourceBundle bundle = ResourceBundle.getBundle("ChartPortlet");
     private final static Category log = Category.getInstance(ChartPortlet.class);
     private final VersionManager versionManager;
     private final VersionHistoryChartFactory chartService;
@@ -77,7 +79,7 @@ public class ChartPortlet extends PortletImpl {
     private String makeHtml(ChartRenderingInfo info, String filename) throws IOException {
         StringWriter out = new StringWriter();
         ChartUtilities.writeImageMap(new PrintWriter(out), filename, info);
-        out.write("<img src=\"/jira/servlet/DisplayChart?filename=" + filename + "\" border=0 usemap=\"#" + filename + "\">");
+        out.write("<img src=\"" + bundle.getString("servlet.url.DisplayChart") + "?filename=" + filename + "\" border=0 usemap=\"#" + filename + "\">");
         return out.toString();
     }
 

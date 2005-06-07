@@ -95,6 +95,6 @@ public class ChartPortletTest extends TestCase {
     
     public void testBasic() {
         String html = portlet.getViewHtml(config);
-        assertTrue(html.indexOf("<img src=\"/servlet/DisplayChart?filename=public1-640x400.png\" border=0 usemap=\"#public1-640x400.png\">") != -1);
+        assertTrue("Result: " + html, html.indexOf("<img src=\"/servlet/DisplayChart?filename=public1-640x400.png\" border=0 usemap=\"#public1-640x400.png\">") != -1);
     }
 }
