@@ -22,7 +22,7 @@ import org.jfree.chart.renderer.xy.StandardXYItemRenderer;
 import org.jfree.chart.urls.StandardXYURLGenerator;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
-import org.jfree.util.ShapeUtils;
+import org.jfree.util.ShapeUtilities;
 
 import com.atlassian.jira.project.version.Version;
 
@@ -78,7 +78,7 @@ class VersionHistoryChartFactory {
                 StandardXYItemRenderer.LINES,
                 ttg, new StandardXYURLGenerator("#"));
         renderer.setShapesFilled(true);        
-        renderer.setSeriesShape(2, ShapeUtils.createUpTriangle(5f));
+        renderer.setSeriesShape(2, ShapeUtilities.createUpTriangle(5f));
         renderer.setSeriesStroke(0,new BasicStroke(2f));
         renderer.setSeriesStroke(1,new BasicStroke(2f));
         return renderer;
