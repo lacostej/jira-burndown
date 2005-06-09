@@ -72,15 +72,17 @@ class VersionHistoryChartFactory {
         StandardXYToolTipGenerator ttg = new StandardXYToolTipGenerator(
                 StandardXYToolTipGenerator.DEFAULT_TOOL_TIP_FORMAT,
                 LONG_TIP, NumberFormat.getInstance());
-        
-                
+                        
         StandardXYItemRenderer renderer = new StandardXYItemRenderer(
                 StandardXYItemRenderer.LINES,
                 ttg, new StandardXYURLGenerator("#"));
         renderer.setShapesFilled(true);        
+        renderer.setSeriesStroke(0, new BasicStroke(2f));
+        renderer.setSeriesPaint(0, Color.RED);
+        renderer.setSeriesStroke(1, new BasicStroke(2f));
+        renderer.setSeriesPaint(1, Color.BLUE);        
         renderer.setSeriesShape(2, ShapeUtilities.createUpTriangle(5f));
-        renderer.setSeriesStroke(0,new BasicStroke(2f));
-        renderer.setSeriesStroke(1,new BasicStroke(2f));
+        renderer.setSeriesPaint(2, Color.GREEN);
         return renderer;
     }
 

@@ -36,8 +36,8 @@ public class VersionHistoryChartFactoryTest extends TestCase {
 
         public List<VersionWorkloadHistoryPoint> getWorkload(Long versionId) {
             List<VersionWorkloadHistoryPoint> list = new LinkedList<VersionWorkloadHistoryPoint>();
-            list.add(makePoint(parse("06:00 01.01.2005"), 0, 0, 0, 0));
-            list.add(makePoint(parse("18:00 18.01.2005"), 0, 0, 0, 0));
+            list.add(makePoint(parse("06:00 01.01.2005"), 0, 0, 3600, 36000));
+            list.add(makePoint(parse("18:00 18.01.2005"), 0, 0, 3600, 36000));
             return list;
         }
 
@@ -97,7 +97,13 @@ public class VersionHistoryChartFactoryTest extends TestCase {
         JFreeChart chart = factory.makeChart(version);
         assertEquals("Chart Title should be picked from the version", "name", chart.getTitle().getText());
         assertEquals("Expected the background color to be normal for non released/archived.", Color.WHITE, chart.getPlot().getBackgroundPaint());
-        assertTrue("Release date should be inside the shown range. " + chart.getXYPlot().getDomainAxis().getRange(), version.releaseDate.getTime() < chart.getXYPlot().getDomainAxis().getRange().getUpperBound());       
+        assertTrue("Release date should be inside the shown range. " + chart.getXYPlot().getDomainAxis().getRange(), version.releaseDate.getTime() < chart.getXYPlot().getDomainAxis().getRange().getUpperBound());
+        
+        assertEquals(Color.RED, chart.getXYPlot().getRenderer().getSeriesPaint(0));
+        assertEquals("first series should be remaining time", 1, chart.getXYPlot().getDataset().getYValue(0,0), 0d);
+        
+        assertEquals(Color.BLUE, chart.getXYPlot().getRenderer().getSeriesPaint(1));
+        assertEquals("second series should be total time", 10, chart.getXYPlot().getDataset().getYValue(1,0), 0d);        
     }
     
     public void testWithNullReleaseDate() {
@@ -114,7 +120,7 @@ public class VersionHistoryChartFactoryTest extends TestCase {
     
     public void testReleasedBackground() {
         version.released = true;
-        JFreeChart chart = factory.makeChart(version);        
+        JFreeChart chart = factory.makeChart(version);                
         assertEquals("Released should have gray background.", RELEASE_COLOR, chart.getPlot().getBackgroundPaint());
         assertTrue("Released should be included in title", chart.getTitle().getText().indexOf("[released]") != -1);
     }
