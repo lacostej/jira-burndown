@@ -30,6 +30,11 @@ Jira application and assign it to use
 	    <url-pattern>/servlet/DisplayChart</url-pattern>
     </servlet-mapping>
 
+If your installation is not the standalone version of JIRA, the webapp is not probably installed in 
+root of the server. In this case you need to modify the ChartPortlet.properties -file inside the
+.jar. The properties file contains a property named "servlet.url.DisplayChart". You should set this
+string to contain the server path part of the url to the DisplayChart Servlet. For example if your
+webapp is installed under /jira, you should set this value to /jira/servlet/DisplayChart.
 
 Jira administration:
 --------------------
