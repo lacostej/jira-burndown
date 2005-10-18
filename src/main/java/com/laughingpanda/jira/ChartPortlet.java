@@ -27,53 +27,55 @@ import com.atlassian.jira.security.JiraAuthenticationContext;
 
 public class ChartPortlet extends PortletImpl {
 
+    private static final int IMAGE_CREATION_INTERVAL = 60 * 1000;
     private final static ResourceBundle bundle = ResourceBundle.getBundle("ChartPortlet");
     private final static Category log = Category.getInstance(ChartPortlet.class);
     private final VersionManager versionManager;
     private final VersionHistoryChartFactory chartService;
 
-    public ChartPortlet(
-            JiraAuthenticationContext authenticationContext, 
-            VersionWorkloadHistoryManager manager, 
-            VersionManager versionManager) {
+    public ChartPortlet(JiraAuthenticationContext authenticationContext, VersionWorkloadHistoryManager manager, VersionManager versionManager) {
         super(authenticationContext);
-        this.versionManager = versionManager;        
+        this.versionManager = versionManager;
         this.chartService = new VersionHistoryChartFactory(manager);
     }
 
-    public String getViewHtml(PortletConfiguration config) { 
-        if (config == null)
-            throw new IllegalArgumentException("PortletConfiguration cannot be null.");
+    public String getViewHtml(PortletConfiguration config) {
+        if (config == null) throw new IllegalArgumentException("PortletConfiguration cannot be null.");
         int width = 500;
         int height = 300;
         Long versionId = null;
         try {
             width = config.getLongProperty("chart.width").intValue();
             height = config.getLongProperty("chart.height").intValue();
-            versionId = config.getLongProperty("versionId");            
+            versionId = config.getLongProperty("versionId");
         } catch (ObjectConfigurationException e1) {
             log.error(e1);
         }
-        if (versionId == null) 
-            return "Version (" + versionId + ") is not available.";
-        if (versionId.longValue() < 0l)
-            return "Please, choose a version. Full Projects are not supported";
+        if (versionId == null) return "Version (" + versionId + ") is not available.";
+        if (versionId.longValue() < 0l) return "Please, choose a version. Full Projects are not supported";
         Version version = versionManager.getVersion(versionId);
-        if (version == null)
-            return "Version (" + versionId + ") is not available.";
+        if (version == null) return "Version (" + versionId + ") is not available.";
 
         try {
-            JFreeChart chart = chartService.makeChart(version);             
-            ChartRenderingInfo info = new ChartRenderingInfo(new StandardEntityCollection());  
-            String filename = saveImage(versionId, width, height, chart, info);
-            return makeHtml(info, filename);
+            ChartRenderingInfo info = new ChartRenderingInfo(new StandardEntityCollection());
+            createTempDir();
+            File imageFile = new File(new File(System.getProperty("java.io.tmpdir")), "public" + versionId + "-" + width + "x" + height + ".png");
+            if (createNewImage(imageFile)) {
+                JFreeChart chart = chartService.makeChart(version);
+                saveImage(imageFile, width, height, chart, info);
+            }
+            return makeHtml(info, imageFile.getName());
         } catch (Exception e) {
             log.log(Priority.ERROR, e);
             StringWriter content = new StringWriter();
             PrintWriter writer = new PrintWriter(content);
-            e.printStackTrace(writer);  
+            e.printStackTrace(writer);
             return content.toString();
-        } 
+        }
+    }
+
+    private boolean createNewImage(File imageFile) {
+        return !imageFile.exists() || imageFile.lastModified() < (System.currentTimeMillis() - IMAGE_CREATION_INTERVAL);
     }
 
     private String makeHtml(ChartRenderingInfo info, String filename) throws IOException {
@@ -83,30 +85,15 @@ public class ChartPortlet extends PortletImpl {
         return out.toString();
     }
 
-    private String saveImage(Long versionId, int width, int height, JFreeChart chart, ChartRenderingInfo info) throws IOException {
-        createTempDir();
-        File imageFile = new File(new File(System.getProperty("java.io.tmpdir")), "public" + versionId + "-" + width + "x" + height + ".png");
+    private void saveImage(File imageFile, int width, int height, JFreeChart chart, ChartRenderingInfo info) throws IOException {
         ChartUtilities.saveChartAsPNG(imageFile, chart, width, height, info);
-        return imageFile.getName();
     }
 
     private void createTempDir() {
         String tempDirName = System.getProperty("java.io.tmpdir");
-        if(tempDirName == null)
-            throw new RuntimeException("Temporary directory system property (java.io.tmpdir) is null");
+        if (tempDirName == null) throw new RuntimeException("Temporary directory system property (java.io.tmpdir) is null");
         File tempDir = new File(tempDirName);
-        if(!tempDir.exists())
-            tempDir.mkdirs();
+        if (!tempDir.exists()) tempDir.mkdirs();
     }
-        
-
-
-
-    
-    
-    
-    
-
-    
 
 }
