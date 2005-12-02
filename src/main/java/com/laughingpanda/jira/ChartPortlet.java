@@ -64,7 +64,7 @@ public class ChartPortlet extends PortletImpl {
                 JFreeChart chart = chartService.makeChart(version);
                 saveImage(imageFile, width, height, chart, info);
             }
-            return makeHtml(info, imageFile.getName());
+            return makeHtml(info, imageFile.getName(), versionId);
         } catch (Exception e) {
             log.log(Priority.ERROR, e);
             StringWriter content = new StringWriter();
@@ -78,10 +78,13 @@ public class ChartPortlet extends PortletImpl {
         return !imageFile.exists() || imageFile.lastModified() < (System.currentTimeMillis() - IMAGE_CREATION_INTERVAL);
     }
 
-    private String makeHtml(ChartRenderingInfo info, String filename) throws IOException {
+    private String makeHtml(ChartRenderingInfo info, String filename, Long versionId) throws IOException {
         StringWriter out = new StringWriter();
         ChartUtilities.writeImageMap(new PrintWriter(out), filename, info, true);
-        out.write("<img src=\"" + bundle.getString("servlet.url.DisplayChart") + "?filename=" + filename + "\" border=0 usemap=\"#" + filename + "\">");
+        out.write(
+                "<a href=\"" + bundle.getString("servlet.url.context") + "/jira/secure/IssueNavigator.jspa?fixfor=" + versionId + "\">" +
+                "<img border=\"0\" src=\"" + bundle.getString("servlet.url.DisplayChart") + "?filename=" + filename + "\" border=0 usemap=\"#" + filename + "\">" +
+                "</a>");
         return out.toString();
     }
 
