@@ -8,6 +8,7 @@ package com.laughingpanda.jira;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ResourceBundle;
 
 import junit.framework.TestCase;
 
@@ -18,6 +19,9 @@ import com.atlassian.jira.project.version.VersionManager;
 import com.laughingpanda.mocked.MockFactory;
 
 public class ChartPortletTest extends TestCase {
+    
+    ResourceBundle bundle = ResourceBundle.getBundle("ChartPortlet");
+    
     ChartPortlet portlet;
     PortletConfiguration config;
     
@@ -69,8 +73,7 @@ public class ChartPortletTest extends TestCase {
             if ("chart.height".equals(arg0)) return new Long(400);
             if ("versionId".equals(arg0)) return new Long(1);
             throw new UnsupportedOperationException("Method not implemented." + arg0);
-        }
-        
+        }        
         
     }
     
@@ -95,6 +98,7 @@ public class ChartPortletTest extends TestCase {
     
     public void testBasic() {
         String html = portlet.getViewHtml(config);
-        assertTrue("Result: " + html, html.indexOf("<img src=\"/servlet/DisplayChart?filename=public1-640x400.png\" border=0 usemap=\"#public1-640x400.png\">") != -1);
+        String s = "<img src=\"" + bundle.getString("servlet.url.DisplayChart") + "?filename=public1-640x400.png\" border=0 usemap=\"#public1-640x400.png\">";
+        assertTrue("Result: " + html + ", expected: " + s, html.indexOf(s) != -1);
     }
 }
