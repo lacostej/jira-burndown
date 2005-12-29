@@ -55,7 +55,7 @@ public class ChartPortlet extends PortletImpl {
             width = config.getLongProperty("chart.width").intValue();
             height = config.getLongProperty("chart.height").intValue();
             versionId = config.getLongProperty("versionId");
-            startDate = new SimpleDateFormat("yyyy-MM-dd").parse(config.getTextProperty("startDate"));
+            startDate = getIsoDateFormatter().parse(config.getTextProperty("startDate"));
         } catch (Exception e) {
             throw new RuntimeException("Error in portlet configuration.", e);
         }
@@ -67,7 +67,7 @@ public class ChartPortlet extends PortletImpl {
         try {
             ChartRenderingInfo info = new ChartRenderingInfo(new StandardEntityCollection());
             createTempDir();
-            File imageFile = new File(new File(System.getProperty("java.io.tmpdir")), "public" + versionId + "-" + width + "x" + height + ".png");
+            File imageFile = new File(new File(System.getProperty("java.io.tmpdir")), createFileName(width, height, versionId, startDate));
             if (createNewImage(imageFile)) {
                 JFreeChart chart = chartService.makeChart(version, startDate);
                 saveImage(imageFile, width, height, chart, info);
@@ -80,6 +80,14 @@ public class ChartPortlet extends PortletImpl {
             e.printStackTrace(writer);
             return content.toString();
         }
+    }
+    
+    private SimpleDateFormat getIsoDateFormatter() {
+        return new SimpleDateFormat("yyyy-MM-dd");
+    }
+
+    private String createFileName(int width, int height, Long versionId, Date startDate) {
+        return "public" + versionId + "-" + getIsoDateFormatter().format(startDate) + "-" + width + "x" + height + ".png";
     }
 
     private boolean createNewImage(File imageFile) {

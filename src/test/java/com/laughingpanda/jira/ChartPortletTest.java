@@ -101,7 +101,7 @@ public class ChartPortletTest extends TestCase {
     
     public void testBasic() {
         String html = portlet.getViewHtml(config);
-        String s = "<img src=\"" + bundle.getString("servlet.url.DisplayChart") + "?filename=public1-640x400.png\" border=0 usemap=\"#public1-640x400.png\">";
+        String s = "<img src=\"" + bundle.getString("servlet.url.DisplayChart") + "?filename=public1-2005-01-01-640x400.png\" border=0 usemap=\"#public1-2005-01-01-640x400.png\">";
         assertTrue("Result: " + html + ", expected: " + s, html.indexOf(s) != -1);
     }
     
