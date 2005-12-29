@@ -36,7 +36,7 @@ public class VersionHistoryChartFactoryTest extends TestCase {
     static class MockManager implements VersionWorkloadHistoryManager {  
         public MockManager() {}
 
-        public List<VersionWorkloadHistoryPoint> getWorkload(Long versionId, Date startDate) {
+        public List<VersionWorkloadHistoryPoint> getWorkloadStartingFromMaxDateBeforeGivenDate(Long versionId, Date startDate) {
             List<VersionWorkloadHistoryPoint> list = new LinkedList<VersionWorkloadHistoryPoint>();
             list.add(makePoint(parse("06:00 01.01.2005"), 0, 0, 3600, 36000));
             list.add(makePoint(parse("18:00 18.01.2005"), 0, 0, 3600, 36000));
@@ -92,12 +92,12 @@ public class VersionHistoryChartFactoryTest extends TestCase {
         super.setUp();
         manager = new MockManager();
         factory = new VersionHistoryChartFactory(manager);
-        version = (MockVersion) MockFactory.makeMock(MockVersion.class);   
+        version = (MockVersion) MockFactory.makeMock(MockVersion.class);
     }
     
     public void testSimple() { 
         version.releaseDate = parse("00:00 01.02.2005");
-        JFreeChart chart = factory.makeChart(version, null);
+        JFreeChart chart = factory.makeChart(version, new Date());
         assertEquals("Chart Title should be picked from the version", "name", chart.getTitle().getText());
         assertEquals("Expected the background color to be normal for non released/archived.", Color.WHITE, chart.getPlot().getBackgroundPaint());
         assertTrue("Release date should be inside the shown range. " + chart.getXYPlot().getDomainAxis().getRange(), version.releaseDate.getTime() < chart.getXYPlot().getDomainAxis().getRange().getUpperBound());
@@ -112,29 +112,29 @@ public class VersionHistoryChartFactoryTest extends TestCase {
     public void testCallsHistoryManagerCorrectly() throws Exception {
         VersionWorkloadHistoryManager observedManager = (VersionWorkloadHistoryManager) Recorder.observe(manager);
         
-        version.releaseDate = parse("00:00 01.02.2005");
-        JFreeChart chart = new VersionHistoryChartFactory(observedManager).makeChart(version, parse("00:00 01.02.2005"));
+        version.releaseDate = parse("00:00 01.02.2006");
+        JFreeChart chart = new VersionHistoryChartFactory(observedManager).makeChart(version, parse("00:00 01.02.2004"));
         
         Recorder.startAssertion(observedManager);
-        observedManager.getWorkload(new Long(100), parse("00:00 01.02.2005"));
+        observedManager.getWorkloadStartingFromMaxDateBeforeGivenDate(new Long(100), parse("00:00 01.02.2004"));
         Recorder.endAssertion(observedManager);
     }
     
     public void testWithNullReleaseDate() {
         version.releaseDate = null;
-        JFreeChart chart = factory.makeChart(version, null);
+        JFreeChart chart = factory.makeChart(version, new Date());
     }
     
     public void testArchivedBackground() {
         version.archived = true;
-        JFreeChart chart = factory.makeChart(version, null);        
+        JFreeChart chart = factory.makeChart(version, new Date());        
         assertEquals("Archived should have gray background.", RELEASE_COLOR, chart.getPlot().getBackgroundPaint());
         assertTrue("Archived should be included in title", chart.getTitle().getText().indexOf("[archived]") != -1);
     }
     
     public void testReleasedBackground() {
         version.released = true;
-        JFreeChart chart = factory.makeChart(version, null);                
+        JFreeChart chart = factory.makeChart(version, new Date());                
         assertEquals("Released should have gray background.", RELEASE_COLOR, chart.getPlot().getBackgroundPaint());
         assertTrue("Released should be included in title", chart.getTitle().getText().indexOf("[released]") != -1);
     }

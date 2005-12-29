@@ -88,12 +88,20 @@ class VersionHistoryChartFactory {
     }
 
     private XYSeriesCollection createSeries(Version version, Date startDate) {
-        List<VersionWorkloadHistoryPoint> workload = historyManager.getWorkload(version.getId(), startDate); 
+        List<VersionWorkloadHistoryPoint> workloadPoints = 
+            historyManager.getWorkloadStartingFromMaxDateBeforeGivenDate(version.getId(), startDate); 
+        setFirstWorkLoadPointToStartDate(startDate, workloadPoints);
         XYSeriesCollection xyDataset = new XYSeriesCollection();
-        xyDataset.addSeries(makeSeries(workload, new RemainingTime()));
-        xyDataset.addSeries(makeSeries(workload, new TotalTime()));        
+        xyDataset.addSeries(makeSeries(workloadPoints, new RemainingTime()));
+        xyDataset.addSeries(makeSeries(workloadPoints, new TotalTime()));        
         addReleaseMarker(version, xyDataset);
         return xyDataset;
+    }
+
+    private void setFirstWorkLoadPointToStartDate(Date startDate, List<VersionWorkloadHistoryPoint> workloadPoints) {
+        if (workloadPoints.size() > 0 && workloadPoints.get(0).measureTime.before(startDate)) {
+            workloadPoints.get(0).measureTime = startDate;
+        }
     }
 
     private void addReleaseMarker(Version version, XYSeriesCollection xyDataset) {

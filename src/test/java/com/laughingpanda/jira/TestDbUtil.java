@@ -22,7 +22,7 @@ class TestDbUtil {
     private static void init() {
         try {
             Class.forName("org.hsqldb.jdbcDriver" );
-            connection = DriverManager.getConnection("jdbc:hsqldb:file:.", "sa", "");
+            connection = DriverManager.getConnection("jdbc:hsqldb:mem:testdb", "sa", "");
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

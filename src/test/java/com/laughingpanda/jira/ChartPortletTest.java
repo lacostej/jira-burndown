@@ -58,7 +58,7 @@ public class ChartPortletTest extends TestCase {
             return  (Version) MockFactory.makeMock(MockVersion.class);
         }
 
-        public List<VersionWorkloadHistoryPoint> getWorkload(Long versionId, Date startDate) {
+        public List<VersionWorkloadHistoryPoint> getWorkloadStartingFromMaxDateBeforeGivenDate(Long versionId, Date startDate) {
             return new LinkedList<VersionWorkloadHistoryPoint>();
         }
     }        

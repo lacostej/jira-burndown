@@ -72,7 +72,7 @@ public class VersionWorkloadHistoryManagerImpl implements
     
     private final Category log = Category.getInstance(VersionWorkloadHistoryManagerImpl.class);
 
-    public List<VersionWorkloadHistoryPoint> getWorkload(Long versionId, Date startDate) {
+    public List<VersionWorkloadHistoryPoint> getWorkloadStartingFromMaxDateBeforeGivenDate(Long versionId, Date startDate) {
         log.debug("Retrieving workload for version '" + versionId + "' with startDate '" + startDate + "'.");
         
         // Note! We use two sql clauses here but this can be implemented using single sql query with subselects.

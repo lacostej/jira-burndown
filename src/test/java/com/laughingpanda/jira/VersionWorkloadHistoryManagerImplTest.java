@@ -26,7 +26,7 @@ public class VersionWorkloadHistoryManagerImplTest extends TestCase {
         VersionWorkloadHistoryPoint historyPoint = createHistoryPoint(new Date());
         manager.storeWorkload(historyPoint);
         
-        List<VersionWorkloadHistoryPoint> workloads = manager.getWorkload(VERSION_ID, new Date());
+        List<VersionWorkloadHistoryPoint> workloads = manager.getWorkloadStartingFromMaxDateBeforeGivenDate(VERSION_ID, new Date());
         // TODO Test using WorkloadHistoryPoint.equals
         assertEquals(1, workloads.size());
         assertEquals(10, workloads.get(0).remainingTime);
@@ -37,7 +37,7 @@ public class VersionWorkloadHistoryManagerImplTest extends TestCase {
         storeWorkloadHistoryPoint("2005-02-02");
         storeWorkloadHistoryPoint("2005-03-03");
         
-        List<VersionWorkloadHistoryPoint> workloads = manager.getWorkload(VERSION_ID, isoDateFormatter.parse("2005-02-15"));
+        List<VersionWorkloadHistoryPoint> workloads = manager.getWorkloadStartingFromMaxDateBeforeGivenDate(VERSION_ID, isoDateFormatter.parse("2005-02-15"));
         assertEquals(2, workloads.size());
         assertEquals("2005-02-02", isoDateFormatter.format(workloads.get(0).measureTime));
         assertEquals("2005-03-03", isoDateFormatter.format(workloads.get(1).measureTime));
@@ -46,12 +46,12 @@ public class VersionWorkloadHistoryManagerImplTest extends TestCase {
     public void testWhenStartDateBeforePoints() throws Exception {
         storeWorkloadHistoryPoint("2005-01-01");
         
-        List<VersionWorkloadHistoryPoint> workloads = manager.getWorkload(VERSION_ID, isoDateFormatter.parse("2004-02-15"));
+        List<VersionWorkloadHistoryPoint> workloads = manager.getWorkloadStartingFromMaxDateBeforeGivenDate(VERSION_ID, isoDateFormatter.parse("2004-02-15"));
         assertEquals(1, workloads.size());
     }
 
     public void testWorkloadNotFound() throws Exception {
-        assertEquals(0, manager.getWorkload(VERSION_ID, new Date()).size());
+        assertEquals(0, manager.getWorkloadStartingFromMaxDateBeforeGivenDate(VERSION_ID, new Date()).size());
     }
     
     private VersionWorkloadHistoryPoint createHistoryPoint(Date measureTime) {
