@@ -59,10 +59,8 @@ public class ChartPortletTest extends TestCase {
         }
 
         public List<VersionWorkloadHistoryPoint> getWorkload(Long versionId) {
-            return new LinkedList();
+            return new LinkedList<VersionWorkloadHistoryPoint>();
         }
-        
-        
     }        
     
     static abstract class MockConfiguration implements PortletConfiguration {    

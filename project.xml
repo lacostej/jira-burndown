@@ -20,6 +20,7 @@
 			<artifactId>spring</artifactId>
 			<version>1.1.5</version>
 		</dependency>
+		<!-- For testing -->
 		<dependency>
 			<groupId>mocked</groupId>
 			<artifactId>mocked</artifactId>
@@ -29,6 +30,11 @@
 			<groupId>javassist</groupId>
 			<artifactId>javassist</artifactId>
 			<version>3.0</version>
+		</dependency>					
+		<dependency>
+			<groupId>hsqldb</groupId>
+			<artifactId>hsqldb</artifactId>
+			<version>1.8.0.1</version>
 		</dependency>					
 	</dependencies>
 	<build>
