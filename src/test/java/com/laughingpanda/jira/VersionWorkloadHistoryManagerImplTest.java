@@ -32,7 +32,7 @@ public class VersionWorkloadHistoryManagerImplTest extends TestCase {
         assertEquals(10, workloads.get(0).remainingTime);
     }
     
-    public void testStoringAndLoadingUsingStartDate() throws Exception {
+    public void testStoringAndLoadingWhenThereIsPointsBeforeStartDate() throws Exception {
         storeWorkloadHistoryPoint("2005-01-01");
         storeWorkloadHistoryPoint("2005-02-02");
         storeWorkloadHistoryPoint("2005-03-03");
@@ -41,6 +41,13 @@ public class VersionWorkloadHistoryManagerImplTest extends TestCase {
         assertEquals(2, workloads.size());
         assertEquals("2005-02-02", isoDateFormatter.format(workloads.get(0).measureTime));
         assertEquals("2005-03-03", isoDateFormatter.format(workloads.get(1).measureTime));
+    }
+    
+    public void testWhenStartDateBeforePoints() throws Exception {
+        storeWorkloadHistoryPoint("2005-01-01");
+        
+        List<VersionWorkloadHistoryPoint> workloads = manager.getWorkload(VERSION_ID, isoDateFormatter.parse("2004-02-15"));
+        assertEquals(1, workloads.size());
     }
 
     public void testWorkloadNotFound() throws Exception {
