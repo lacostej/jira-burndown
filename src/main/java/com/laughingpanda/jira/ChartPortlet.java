@@ -9,6 +9,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.ResourceBundle;
 
 import org.apache.log4j.Category;
@@ -44,12 +46,14 @@ public class ChartPortlet extends PortletImpl {
         int width = 500;
         int height = 300;
         Long versionId = null;
+        Date startDate = null;
         try {
             width = config.getLongProperty("chart.width").intValue();
             height = config.getLongProperty("chart.height").intValue();
             versionId = config.getLongProperty("versionId");
-        } catch (ObjectConfigurationException e1) {
-            log.error(e1);
+            startDate = new SimpleDateFormat("yyyy-MM-dd").parse(config.getTextProperty("startDate"));
+        } catch (Exception e) {
+            throw new RuntimeException("Error in portlet configuration.", e);
         }
         if (versionId == null) return "Version (" + versionId + ") is not available.";
         if (versionId.longValue() < 0l) return "Please, choose a version. Full Projects are not supported";
@@ -61,7 +65,7 @@ public class ChartPortlet extends PortletImpl {
             createTempDir();
             File imageFile = new File(new File(System.getProperty("java.io.tmpdir")), "public" + versionId + "-" + width + "x" + height + ".png");
             if (createNewImage(imageFile)) {
-                JFreeChart chart = chartService.makeChart(version);
+                JFreeChart chart = chartService.makeChart(version, startDate);
                 saveImage(imageFile, width, height, chart, info);
             }
             return makeHtml(info, imageFile.getName());

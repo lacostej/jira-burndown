@@ -9,6 +9,7 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.text.DateFormat;
 import java.text.NumberFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -40,8 +41,8 @@ class VersionHistoryChartFactory {
     /**
      * Creates a chart from the version.
      */
-    protected JFreeChart makeChart(Version version) {
-        XYSeriesCollection xyDataset = createSeries(version);        
+    protected JFreeChart makeChart(Version version, Date startDate) {
+        XYSeriesCollection xyDataset = createSeries(version, startDate);        
         StandardXYItemRenderer renderer = createRenderer();
         
         DateAxis timeAxis = new DateAxis("");
@@ -86,8 +87,8 @@ class VersionHistoryChartFactory {
         return renderer;
     }
 
-    private XYSeriesCollection createSeries(Version version) {
-        List<VersionWorkloadHistoryPoint> workload = historyManager.getWorkload(version.getId()); 
+    private XYSeriesCollection createSeries(Version version, Date startDate) {
+        List<VersionWorkloadHistoryPoint> workload = historyManager.getWorkload(version.getId(), startDate); 
         XYSeriesCollection xyDataset = new XYSeriesCollection();
         xyDataset.addSeries(makeSeries(workload, new RemainingTime()));
         xyDataset.addSeries(makeSeries(workload, new TotalTime()));        

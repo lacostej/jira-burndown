@@ -28,6 +28,13 @@
 				<default>300</default>
 			</property>
 			<property>
+				<key>startDate</key>
+				<name>Start date</name>
+				<description>Start date in ISO date format (yyyy-mm-dd).</description>
+				<type>text</type>
+				<default>300</default>
+			</property>
+			<property>
 				<key>versionId</key>
                 <name>Version</name>
                 <description>Version for the Chart</description>

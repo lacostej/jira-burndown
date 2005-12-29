@@ -5,11 +5,12 @@
  */
 package com.laughingpanda.jira;
 
+import java.util.Date;
 import java.util.List;
 
 public interface VersionWorkloadHistoryManager {
 
-    public List<VersionWorkloadHistoryPoint> getWorkload(Long versionId);
+    public List<VersionWorkloadHistoryPoint> getWorkload(Long versionId, Date startDate);
     
     public void storeWorkload(VersionWorkloadHistoryPoint point);
 

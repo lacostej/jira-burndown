@@ -58,7 +58,7 @@ public class ChartPortletTest extends TestCase {
             return  (Version) MockFactory.makeMock(MockVersion.class);
         }
 
-        public List<VersionWorkloadHistoryPoint> getWorkload(Long versionId) {
+        public List<VersionWorkloadHistoryPoint> getWorkload(Long versionId, Date startDate) {
             return new LinkedList<VersionWorkloadHistoryPoint>();
         }
     }        
@@ -71,8 +71,13 @@ public class ChartPortletTest extends TestCase {
             if ("chart.height".equals(arg0)) return new Long(400);
             if ("versionId".equals(arg0)) return new Long(1);
             throw new UnsupportedOperationException("Method not implemented." + arg0);
-        }        
-        
+        }
+
+        public String getTextProperty(String arg0) throws ObjectConfigurationException {
+            if ("startDate".equals(arg0)) return "2005-01-01";
+            
+            throw new UnsupportedOperationException("Method not implemented." + arg0);
+        }
     }
     
     public void setUp() throws Exception {
@@ -90,7 +95,7 @@ public class ChartPortletTest extends TestCase {
         try {
             portlet.getViewHtml(null);
             fail("Expected exception with null configuration.");
-        } catch (IllegalArgumentException e) {            
+        } catch (IllegalArgumentException expected) {            
         }        
     }    
     
@@ -98,5 +103,10 @@ public class ChartPortletTest extends TestCase {
         String html = portlet.getViewHtml(config);
         String s = "<img src=\"" + bundle.getString("servlet.url.DisplayChart") + "?filename=public1-640x400.png\" border=0 usemap=\"#public1-640x400.png\">";
         assertTrue("Result: " + html + ", expected: " + s, html.indexOf(s) != -1);
+    }
+    
+    public void testCallsChartServiceCorrectly() throws Exception {
+        portlet.getViewHtml(config);
+        
     }
 }

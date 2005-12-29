@@ -7,6 +7,7 @@ package com.laughingpanda.jira;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.List;
 
 import javax.naming.Context;
@@ -31,7 +32,7 @@ public class VersionWorkloadHistoryManagerImpl implements
             }
             return (DataSource) initialContext.lookup("java:comp/env/jdbc/JiraDS");
         } catch (NamingException ex) {
-            throw new RuntimeException("Init: Cannot get connection " + ex);
+            throw new RuntimeException("Init: Cannot get connection.", ex);
         }
     }
     
@@ -41,13 +42,6 @@ public class VersionWorkloadHistoryManagerImpl implements
     
     public VersionWorkloadHistoryManagerImpl(DataSource datasource) {
         template = new JdbcTemplate(datasource);
-    }
-
-    public List<VersionWorkloadHistoryPoint> getWorkload(Long versionId) {
-        log.debug("Retrieving workload.");
-        return template.query(
-                "SELECT * FROM version_workload_history WHERE versionId = ?",
-                new Object[] { versionId }, mapper);
     }
 
     static final RowMapper mapper = new RowMapper() {
@@ -73,5 +67,19 @@ public class VersionWorkloadHistoryManagerImpl implements
     }
     
     private final Category log = Category.getInstance(VersionWorkloadHistoryManagerImpl.class);
+
+    public List<VersionWorkloadHistoryPoint> getWorkload(Long versionId, Date startDate) {
+        log.debug("Retrieving workload for version '" + versionId + "' with startDate '" + startDate + "'.");
+        
+        // Note! We use two sql clauses here but this can be implemented using single sql query with subselects.
+        // However older versions of MySQL (prior 4.1) do not support this feature.  
+        Date latestHistoryPointBeforeStartDate = 
+            (Date) template.queryForObject("SELECT MAX(time) FROM version_workload_history WHERE versionId = ? AND time < ? ",
+            new Object[] {versionId, startDate}, Date.class);
+        
+        return template.query(
+                "SELECT * FROM version_workload_history WHERE versionId = ? AND (time >= ? OR time = ?)",
+                new Object[] { versionId, startDate, latestHistoryPointBeforeStartDate }, mapper);
+    }
 
 }
