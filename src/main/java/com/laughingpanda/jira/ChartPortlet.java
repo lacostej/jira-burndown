@@ -26,7 +26,11 @@ import com.atlassian.jira.portal.PortletImpl;
 import com.atlassian.jira.project.version.Version;
 import com.atlassian.jira.project.version.VersionManager;
 import com.atlassian.jira.security.JiraAuthenticationContext;
-
+/**
+ * 
+ * @author Jukka Lindstrom
+ * @author Markus Hjort
+ */
 public class ChartPortlet extends PortletImpl {
 
     private static final int IMAGE_CREATION_INTERVAL = 60 * 1000;

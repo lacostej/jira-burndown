@@ -19,6 +19,10 @@ import org.apache.log4j.Category;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
+/**
+ * @author Jukka Lindstrom
+ * @author Markus Hjort
+ */
 public class VersionWorkloadHistoryManagerImpl implements
         VersionWorkloadHistoryManager {
 
