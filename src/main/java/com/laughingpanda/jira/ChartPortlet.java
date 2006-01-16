@@ -20,7 +20,6 @@ import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.entity.StandardEntityCollection;
 
-import com.atlassian.configurable.ObjectConfigurationException;
 import com.atlassian.jira.portal.PortletConfiguration;
 import com.atlassian.jira.portal.PortletImpl;
 import com.atlassian.jira.project.version.Version;
@@ -55,7 +54,7 @@ public class ChartPortlet extends PortletImpl {
             width = config.getLongProperty("chart.width").intValue();
             height = config.getLongProperty("chart.height").intValue();
             versionId = config.getLongProperty("versionId");
-            startDate = getIsoDateFormatter().parse(config.getTextProperty("startDate"));
+            startDate = getIsoDateFormatter().parse(config.getProperty("startDate"));
         } catch (Exception e) {
             throw new RuntimeException("Error in portlet configuration.", e);
         }

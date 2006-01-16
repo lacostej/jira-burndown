@@ -3,9 +3,9 @@
 	<!-- a short block describing the plugin itself -->
 	<plugin-info>
 		<description>LaughingPanda</description>
-		<version>1.0</version>
+		<version>0.2</version>
 		<application-version min="3.0" max="3.0"/>
-		<vendor name="Gloria Mundi" url=""/>
+		<vendor name="Laughing Panda" url="http://www.laughingpanda.org"/>
 	</plugin-info>
 	<portlet key="versionWorkloadChart" name="Chart Portlet" class="com.laughingpanda.jira.ChartPortlet">
 		<description>Renders a burndown chart of a version work history.</description>
@@ -31,8 +31,8 @@
 				<key>startDate</key>
 				<name>Start date</name>
 				<description>Start date in ISO date format (yyyy-mm-dd).</description>
-				<type>text</type>
-				<default>300</default>
+				<type>string</type>
+				<default>2006-01-01</default>
 			</property>
 			<property>
 				<key>versionId</key>

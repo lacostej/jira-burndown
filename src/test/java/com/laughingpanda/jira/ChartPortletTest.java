@@ -73,7 +73,7 @@ public class ChartPortletTest extends TestCase {
             throw new UnsupportedOperationException("Method not implemented." + arg0);
         }
 
-        public String getTextProperty(String arg0) throws ObjectConfigurationException {
+        public String getProperty(String arg0) throws ObjectConfigurationException {
             if ("startDate".equals(arg0)) return "2005-01-01";
             
             throw new UnsupportedOperationException("Method not implemented." + arg0);
