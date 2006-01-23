@@ -5,28 +5,45 @@
  */
 package com.laughingpanda.jira;
 
+import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.ResourceBundle;
+import java.util.Map;
 
 import junit.framework.TestCase;
 
+import org.ofbiz.core.entity.GenericValue;
+import org.ofbiz.core.entity.model.ModelEntity;
+
 import com.atlassian.configurable.ObjectConfigurationException;
+import com.atlassian.jira.config.properties.ApplicationProperties;
 import com.atlassian.jira.portal.PortletConfiguration;
 import com.atlassian.jira.project.version.Version;
 import com.atlassian.jira.project.version.VersionManager;
+import com.atlassian.jira.security.PermissionManager;
 import com.laughingpanda.mocked.MockFactory;
+import com.opensymphony.user.ProviderAccessor;
+import com.opensymphony.user.User;
+import com.opensymphony.user.Entity.Accessor;
+import com.opensymphony.user.provider.CredentialsProvider;
 
 public class ChartPortletTest extends TestCase {
-    
-    ResourceBundle bundle = ResourceBundle.getBundle("ChartPortlet");
-    
+
     ChartPortlet portlet;
-    PortletConfiguration config;
-    
+    private MockConfiguration config;
+
+    private MockProviderAccessor accessor; 
+    private MockJiraAuthenticationContext authenticationContext;
+    private User authenticatedUser;
+
     static abstract class MockVersion implements Version {
-        public MockVersion() {}
+        
+        public GenericValue project;
+        
+        public MockVersion() {
+        }
 
         public Long getId() {
             return new Long(1);
@@ -35,78 +52,127 @@ public class ChartPortletTest extends TestCase {
         public String getName() {
             return "TestVersion";
         }
-        
+
         public Date getReleaseDate() {
             return new Date(0);
         }
-        
+
         public boolean isArchived() {
             return false;
         }
-        
+
         public boolean isReleased() {
             return false;
         }
+
+        public GenericValue getProject() {
+            return project;
+        }
+    }
+
+    static abstract class MockProviderAccessor implements ProviderAccessor, CredentialsProvider, PermissionManager {
         
+        public List<GenericValue> accessibleProjects = new LinkedList<GenericValue>();
+        
+        public CredentialsProvider getCredentialsProvider(String arg0) {
+            return this;
+        }
+
+        public boolean load(String arg0, Accessor arg1) {
+            return true;
+        }
+
+        public Collection getProjects(int permissionType, User user) {
+            return accessibleProjects;
+        }
         
     }
     
     static abstract class MockVersionManager implements VersionWorkloadHistoryManager, VersionManager {
-        public MockVersionManager() {}
         
+        public Map<Long,Version> versions = new HashMap<Long,Version>();
+        
+        public MockVersionManager() {
+        }
+
         public Version getVersion(Long id) {
-            return  (Version) MockFactory.makeMock(MockVersion.class);
+            return versions.get(id);
         }
 
         public List<VersionWorkloadHistoryPoint> getWorkloadStartingFromMaxDateBeforeGivenDate(Long versionId, Date startDate) {
             return new LinkedList<VersionWorkloadHistoryPoint>();
         }
-    }        
-    
-    static abstract class MockConfiguration implements PortletConfiguration {    
-        public MockConfiguration() {}
+    }
 
-        public Long getLongProperty(String arg0) throws ObjectConfigurationException {
-            if ("chart.width".equals(arg0)) return new Long(640);
-            if ("chart.height".equals(arg0)) return new Long(400);
-            if ("versionId".equals(arg0)) return new Long(1);
-            throw new UnsupportedOperationException("Method not implemented." + arg0);
+    static abstract class MockConfiguration implements PortletConfiguration {
+        
+        private Map<String,String> properties = new HashMap<String,String>();
+        
+        public MockConfiguration() {
         }
 
-        public String getProperty(String arg0) throws ObjectConfigurationException {
-            if ("startDate".equals(arg0)) return "2005-01-01";
-            
-            throw new UnsupportedOperationException("Method not implemented." + arg0);
+        public Long getLongProperty(String property) throws ObjectConfigurationException {
+            if (properties.containsKey(property))
+                return Long.parseLong(properties.get(property));
+            throw new UnsupportedOperationException("Method not implemented." + property);
+        }
+
+        public String getProperty(String property) throws ObjectConfigurationException {
+            if (properties.containsKey(property))
+                return properties.get(property);
+            throw new UnsupportedOperationException("Method not implemented." + property);
         }
     }
-    
+
     public void setUp() throws Exception {
         super.setUp();
-        config = (PortletConfiguration) MockFactory.makeMock(MockConfiguration.class);
-        Object mock = MockFactory.makeMock(MockVersionManager.class);
-        portlet = new ChartPortlet(
-                null, 
-                (VersionWorkloadHistoryManager) mock, 
-                (VersionManager) mock);
+        authenticationContext = MockFactory.makeMock(MockJiraAuthenticationContext.class);
+
+        accessor = MockFactory.makeMock(MockProviderAccessor.class);
+
+        authenticatedUser = new User("name", accessor);
+        authenticationContext.setUser(authenticatedUser);
+
+        config = MockFactory.makeMock(MockConfiguration.class);
+        MockVersionManager mock = MockFactory.makeMock(MockVersionManager.class);
+        portlet = new ChartPortlet(authenticationContext, mock, mock, accessor, MockFactory.makeMock(ApplicationProperties.class));
+        
+        config.properties.put("chart.width", "640");
+        config.properties.put("chart.height", "400");
+        config.properties.put("versionId", "1");
+        config.properties.put("startDate", "2005-01-01");
+        
+        GenericValue project = new GenericValue(MockFactory.makeMock(ModelEntity.class));
+        accessor.accessibleProjects.add(project);
+
+        MockVersion version = MockFactory.makeMock(MockVersion.class);
+        version.project = project;
+        
+        mock.versions.put(1l, version);
     }
 
-    
     public void testNullConfiguration() {
         try {
             portlet.getViewHtml(null);
             fail("Expected exception with null configuration.");
-        } catch (IllegalArgumentException expected) {            
-        }        
-    }    
-    
+        } catch (IllegalArgumentException expected) {
+        }
+    }
+
     public void testBasic() {
         String html = portlet.getViewHtml(config);
-        String s = "<img src=\"" + bundle.getString("servlet.url.DisplayChart") + "?filename=public1-2005-01-01-640x400.png\" border=0 usemap=\"#public1-2005-01-01-640x400.png\">";
-        assertTrue("Result: " + html + ", expected: " + s, html.indexOf(s) != -1);
+        String s = "<img src=\"/servlet?filename=public1-2005-01-01-640x400.png\" border=0 usemap=\"#public1-2005-01-01-640x400.png\">";
+        assertTrue("Expected: " + s +", but was: " + html, html.contains(s));
     }
-    
+
+    public void testUserHasNoRights() {
+        accessor.accessibleProjects.clear();
+        String html = portlet.getViewHtml(config);
+        assertEquals("You don't have correct privileges to view this data.", html);
+    }
+
     public void testCallsChartServiceCorrectly() throws Exception {
         portlet.getViewHtml(config);
-        
+
     }
 }

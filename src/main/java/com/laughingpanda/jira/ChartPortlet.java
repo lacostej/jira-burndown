@@ -10,8 +10,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.SimpleDateFormat;
+import java.util.Collection;
 import java.util.Date;
-import java.util.ResourceBundle;
+import java.util.Map;
 
 import org.apache.log4j.Category;
 import org.apache.log4j.Priority;
@@ -20,11 +21,15 @@ import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.entity.StandardEntityCollection;
 
+import com.atlassian.jira.ManagerFactory;
+import com.atlassian.jira.config.properties.ApplicationProperties;
 import com.atlassian.jira.portal.PortletConfiguration;
 import com.atlassian.jira.portal.PortletImpl;
 import com.atlassian.jira.project.version.Version;
 import com.atlassian.jira.project.version.VersionManager;
 import com.atlassian.jira.security.JiraAuthenticationContext;
+import com.atlassian.jira.security.PermissionManager;
+import com.atlassian.jira.security.Permissions;
 /**
  * 
  * @author Jukka Lindstrom
@@ -33,16 +38,15 @@ import com.atlassian.jira.security.JiraAuthenticationContext;
 public class ChartPortlet extends PortletImpl {
 
     private static final int IMAGE_CREATION_INTERVAL = 60 * 1000;
-    private final static ResourceBundle bundle = ResourceBundle.getBundle("ChartPortlet");
     private final static Category log = Category.getInstance(ChartPortlet.class);
     private final VersionManager versionManager;
     private final VersionHistoryChartFactory chartService;
 
-    public ChartPortlet(JiraAuthenticationContext authenticationContext, VersionWorkloadHistoryManager manager, VersionManager versionManager) {
-        super(authenticationContext);
+    public ChartPortlet(JiraAuthenticationContext authenticationContext, VersionWorkloadHistoryManager manager, VersionManager versionManager, PermissionManager permissionManager, ApplicationProperties properties) {
+        super(authenticationContext,permissionManager,properties);
         this.versionManager = versionManager;
         this.chartService = new VersionHistoryChartFactory(manager);
-    }
+    }       
 
     public String getViewHtml(PortletConfiguration config) {
         if (config == null) throw new IllegalArgumentException("PortletConfiguration cannot be null.");
@@ -60,8 +64,13 @@ public class ChartPortlet extends PortletImpl {
         }
         if (versionId == null) return "Version (" + versionId + ") is not available.";
         if (versionId.longValue() < 0l) return "Please, choose a version. Full Projects are not supported";
+        
+        Collection browsableProjects = permissionManager.getProjects(Permissions.BROWSE, authenticationContext.getUser());
+        
         Version version = versionManager.getVersion(versionId);
         if (version == null) return "Version (" + versionId + ") is not available.";
+        if (!browsableProjects.contains(version.getProject())) return "You don't have correct privileges to view this data.";
+        
 
         try {
             ChartRenderingInfo info = new ChartRenderingInfo(new StandardEntityCollection());
@@ -96,7 +105,7 @@ public class ChartPortlet extends PortletImpl {
     private String makeHtml(ChartRenderingInfo info, String filename) throws IOException {
         StringWriter out = new StringWriter();
         ChartUtilities.writeImageMap(new PrintWriter(out), filename, info, true);
-        out.write("<img src=\"" + bundle.getString("servlet.url.DisplayChart") + "?filename=" + filename + "\" border=0 usemap=\"#" + filename + "\">");
+        out.write("<img src=\"/servlet?filename=" + filename + "\" border=0 usemap=\"#" + filename + "\">");
         return out.toString();
     }
 
