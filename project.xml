@@ -7,25 +7,35 @@
 	<dependencies>
 		<dependency>
 			<groupId>springframework</groupId>
-			<artifactId>spring</artifactId>
-			<version>1.1.5</version>
+			<artifactId>spring-jdbc</artifactId>
+			<version>1.2.6</version>
+		</dependency>
+		<dependency>
+			<groupId>springframework</groupId>
+			<artifactId>spring-core</artifactId>
+			<version>1.2.6</version>
+		</dependency>
+		<dependency>
+			<groupId>springframework</groupId>
+			<artifactId>spring-dao</artifactId>
+			<version>1.2.6</version>
 		</dependency>
 		<!-- For testing -->
 		<dependency>
 			<groupId>mocked</groupId>
 			<artifactId>mocked</artifactId>
-			<version>0.3</version>
+			<version>0.4-java5-20051126</version>
 		</dependency>
 		<dependency>
 			<groupId>javassist</groupId>
 			<artifactId>javassist</artifactId>
 			<version>3.0</version>
-		</dependency>					
+		</dependency>
 		<dependency>
 			<groupId>hsqldb</groupId>
 			<artifactId>hsqldb</artifactId>
 			<version>1.8.0.1</version>
-		</dependency>					
+		</dependency>
 	</dependencies>
 	<build>
 		<sourceDirectory>src/main/java</sourceDirectory>
