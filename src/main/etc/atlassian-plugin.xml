@@ -25,7 +25,7 @@
 			<property>
 				<key>chart.height</key>
 				<name>portlet.versionworkloadchart.field.height.name</name>
-				<description>portlet.versionworkloadchart.field.height.description</description><
+				<description>portlet.versionworkloadchart.field.height.description</description>
 				<type>long</type>
 				<default>300</default>
 			</property>
