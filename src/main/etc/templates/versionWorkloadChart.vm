@@ -1,0 +1,10 @@
+#if ($loggedin)
+	#if ($errorMessage)
+		$errorMessage
+	#else
+	    #if ($imageMap)
+	        $imageMap
+	    #end
+		<img src="$req.contextPath/charts?filename=$chartFilename" border="0" #if ($imageMap) usemap="\#$imagemapName" #end>
+	#end
+#end

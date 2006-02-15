@@ -20,6 +20,11 @@
 			<artifactId>spring-dao</artifactId>
 			<version>1.2.6</version>
 		</dependency>
+		<dependency>
+			<groupId>springframework</groupId>
+			<artifactId>spring-beans</artifactId>
+			<version>1.2.6</version>
+		</dependency>
 		<!-- For testing -->
 		<dependency>
 			<groupId>mocked</groupId>

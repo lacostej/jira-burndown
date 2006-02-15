@@ -21,7 +21,6 @@ import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.entity.StandardEntityCollection;
 
-import com.atlassian.jira.ManagerFactory;
 import com.atlassian.jira.config.properties.ApplicationProperties;
 import com.atlassian.jira.portal.PortletConfiguration;
 import com.atlassian.jira.portal.PortletImpl;
@@ -30,6 +29,7 @@ import com.atlassian.jira.project.version.VersionManager;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.security.PermissionManager;
 import com.atlassian.jira.security.Permissions;
+
 /**
  * 
  * @author Jukka Lindstrom
@@ -43,13 +43,15 @@ public class ChartPortlet extends PortletImpl {
     private final VersionHistoryChartFactory chartService;
 
     public ChartPortlet(JiraAuthenticationContext authenticationContext, VersionWorkloadHistoryManager manager, VersionManager versionManager, PermissionManager permissionManager, ApplicationProperties properties) {
-        super(authenticationContext,permissionManager,properties);
+        super(authenticationContext, permissionManager, properties);
         this.versionManager = versionManager;
         this.chartService = new VersionHistoryChartFactory(manager);
-    }       
+    }
 
-    public String getViewHtml(PortletConfiguration config) {
+    public Map getVelocityParams(PortletConfiguration config) {
         if (config == null) throw new IllegalArgumentException("PortletConfiguration cannot be null.");
+        Map model = super.getVelocityParams(config);
+
         int width = 500;
         int height = 300;
         Long versionId = null;
@@ -62,15 +64,14 @@ public class ChartPortlet extends PortletImpl {
         } catch (Exception e) {
             throw new RuntimeException("Error in portlet configuration.", e);
         }
-        if (versionId == null) return "Version (" + versionId + ") is not available.";
-        if (versionId.longValue() < 0l) return "Please, choose a version. Full Projects are not supported";
-        
+        if (versionId == null) return error(model, "Version (" + versionId + ") is not available.");
+        if (versionId.longValue() < 0l) return error(model, "Please, choose a version. Full Projects are not supported");
+
         Collection browsableProjects = permissionManager.getProjects(Permissions.BROWSE, authenticationContext.getUser());
-        
+
         Version version = versionManager.getVersion(versionId);
-        if (version == null) return "Version (" + versionId + ") is not available.";
-        if (!browsableProjects.contains(version.getProject())) return "You don't have correct privileges to view this data.";
-        
+        if (version == null) return error(model, "Version (" + versionId + ") is not available.");
+        if (!browsableProjects.contains(version.getProject())) return error(model, "You don't have correct privileges to view this data.");
 
         try {
             ChartRenderingInfo info = new ChartRenderingInfo(new StandardEntityCollection());
@@ -80,16 +81,24 @@ public class ChartPortlet extends PortletImpl {
                 JFreeChart chart = chartService.makeChart(version, startDate);
                 saveImage(imageFile, width, height, chart, info);
             }
-            return makeHtml(info, imageFile.getName());
+
+            StringWriter imageMap = new StringWriter();
+            ChartUtilities.writeImageMap(new PrintWriter(imageMap), imageFile.getName(), info, true);
+            model.put("chartFilename", imageFile.getName());
+            model.put("imageMapName", imageFile.getName());
+            model.put("imageMap", imageMap.toString());
         } catch (Exception e) {
             log.log(Priority.ERROR, e);
-            StringWriter content = new StringWriter();
-            PrintWriter writer = new PrintWriter(content);
-            e.printStackTrace(writer);
-            return content.toString();
+            throw new RuntimeException(e);
         }
+        return model;
     }
-    
+
+    private static Map error(Map model, String string) {
+        model.put("errorMessage", string);
+        return model;
+    }
+
     private SimpleDateFormat getIsoDateFormatter() {
         return new SimpleDateFormat("yyyy-MM-dd");
     }
@@ -100,13 +109,6 @@ public class ChartPortlet extends PortletImpl {
 
     private boolean createNewImage(File imageFile) {
         return !imageFile.exists() || imageFile.lastModified() < (System.currentTimeMillis() - IMAGE_CREATION_INTERVAL);
-    }
-
-    private String makeHtml(ChartRenderingInfo info, String filename) throws IOException {
-        StringWriter out = new StringWriter();
-        ChartUtilities.writeImageMap(new PrintWriter(out), filename, info, true);
-        out.write("<img src=\"/servlet?filename=" + filename + "\" border=0 usemap=\"#" + filename + "\">");
-        return out.toString();
     }
 
     private void saveImage(File imageFile, int width, int height, JFreeChart chart, ChartRenderingInfo info) throws IOException {

@@ -8,36 +8,38 @@
 		<vendor name="Laughing Panda" url="http://www.laughingpanda.org"/>
 	</plugin-info>
 	<portlet key="versionWorkloadChart" name="Chart Portlet" class="com.laughingpanda.jira.ChartPortlet">
-		<description>Renders a burndown chart of a version work history.</description>
-		<label key="Chart Portlet" />
+        <description key="portlet.versionworkloadchart.description">i18n description</description>
+        <resource type="i18n" name="i18n" location="com.laughingpanda.jira.versionWorkloadChart" />
+        <resource type="velocity" name="view" location="templates/versionWorkloadChart.vm" />
+		<label key="portlet.versionworkloadchart.label" />
 		<thumbnail>portlets/dashboard/thumbnails/laughingpanda/burndown.png</thumbnail>
 		<permission>assignable</permission>
 		<properties>
 			<property>
 				<key>chart.width</key>
-				<name>Width</name>
-				<description>Width of the Chart</description>
+				<name>portlet.versionworkloadchart.field.width.name</name>
+				<description>portlet.versionworkloadchart.field.width.description</description>
 				<type>long</type>
 				<default>500</default>
 			</property>
 			<property>
 				<key>chart.height</key>
-				<name>Height</name>
-				<description>Height of the Chart</description>
+				<name>portlet.versionworkloadchart.field.height.name</name>
+				<description>portlet.versionworkloadchart.field.height.description</description><
 				<type>long</type>
 				<default>300</default>
 			</property>
 			<property>
 				<key>startDate</key>
-				<name>Start date</name>
-				<description>Start date in ISO date format (yyyy-mm-dd).</description>
+				<name>portlet.versionworkloadchart.field.startdate.name</name>
+				<description>portlet.versionworkloadchart.field.startdate.description</description>
 				<type>string</type>
 				<default>2006-01-01</default>
 			</property>
 			<property>
 				<key>versionId</key>
-                <name>Version</name>
-                <description>Version for the Chart</description>
+                <name>portlet.versionworkloadchart.field.version.name</name>
+                <description>portlet.versionworkloadchart.field.version.description</description>
                 <type>select</type>
                 <values class="com.laughingpanda.jira.AllVersionValuesGenerator"/>
 			</property>			

@@ -19,11 +19,13 @@ import org.ofbiz.core.entity.model.ModelEntity;
 
 import com.atlassian.configurable.ObjectConfigurationException;
 import com.atlassian.jira.config.properties.ApplicationProperties;
+import com.atlassian.jira.plugin.portlet.PortletModuleDescriptor;
 import com.atlassian.jira.portal.PortletConfiguration;
 import com.atlassian.jira.project.version.Version;
 import com.atlassian.jira.project.version.VersionManager;
 import com.atlassian.jira.security.PermissionManager;
 import com.laughingpanda.mocked.MockFactory;
+import com.laughingpanda.mocked.NullValues;
 import com.opensymphony.user.ProviderAccessor;
 import com.opensymphony.user.User;
 import com.opensymphony.user.Entity.Accessor;
@@ -85,6 +87,10 @@ public class ChartPortletTest extends TestCase {
         public Collection getProjects(int permissionType, User user) {
             return accessibleProjects;
         }
+
+        public boolean hasPermission(int permission, User user) {
+            return false;
+        }
         
     }
     
@@ -125,17 +131,15 @@ public class ChartPortletTest extends TestCase {
     }
 
     public void setUp() throws Exception {
-        super.setUp();
+        NullValues.useDefaultPrimitiveValues();
+       
         authenticationContext = MockFactory.makeMock(MockJiraAuthenticationContext.class);
-
         accessor = MockFactory.makeMock(MockProviderAccessor.class);
-
         authenticatedUser = new User("name", accessor);
         authenticationContext.setUser(authenticatedUser);
-
         config = MockFactory.makeMock(MockConfiguration.class);
         MockVersionManager mock = MockFactory.makeMock(MockVersionManager.class);
-        portlet = new ChartPortlet(authenticationContext, mock, mock, accessor, MockFactory.makeMock(ApplicationProperties.class));
+        portlet = new ChartPortlet(authenticationContext, mock, mock, accessor, NullValues.makeMock(ApplicationProperties.class));
         
         config.properties.put("chart.width", "640");
         config.properties.put("chart.height", "400");
@@ -153,26 +157,25 @@ public class ChartPortletTest extends TestCase {
 
     public void testNullConfiguration() {
         try {
-            portlet.getViewHtml(null);
+            portlet.getVelocityParams(null);
             fail("Expected exception with null configuration.");
         } catch (IllegalArgumentException expected) {
         }
     }
 
     public void testBasic() {
-        String html = portlet.getViewHtml(config);
-        String s = "<img src=\"/servlet?filename=public1-2005-01-01-640x400.png\" border=0 usemap=\"#public1-2005-01-01-640x400.png\">";
-        assertTrue("Expected: " + s +", but was: " + html, html.contains(s));
+        Map params = portlet.getVelocityParams(config);
+        assertEquals("public1-2005-01-01-640x400.png", params.get("chartFilename"));
+        assertEquals("public1-2005-01-01-640x400.png", params.get("imageMapName"));
+        assertFalse(params.containsKey("errorMessage"));
+        assertEquals(true, params.get("loggedin"));
     }
 
     public void testUserHasNoRights() {
         accessor.accessibleProjects.clear();
-        String html = portlet.getViewHtml(config);
-        assertEquals("You don't have correct privileges to view this data.", html);
+        Map params = portlet.getVelocityParams(config);
+        assertFalse(params.containsKey("chartFilename"));
+        assertEquals("You don't have correct privileges to view this data.", params.get("errorMessage"));
     }
 
-    public void testCallsChartServiceCorrectly() throws Exception {
-        portlet.getViewHtml(config);
-
-    }
 }
