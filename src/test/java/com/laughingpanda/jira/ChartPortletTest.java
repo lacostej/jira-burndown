@@ -122,12 +122,12 @@ public class ChartPortletTest extends TestCase {
 
         public Long getLongProperty(String property) throws ObjectConfigurationException {
             if (properties.containsKey(property)) return Long.parseLong(properties.get(property));
-            throw new RuntimeException("No such property: " + property);
+            return null;
         }
 
         public String getProperty(String property) throws ObjectConfigurationException {
             if (properties.containsKey(property)) return properties.get(property);
-            throw new RuntimeException("No such property: " + property);
+            return null;
         }
     }
 

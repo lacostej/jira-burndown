@@ -3,26 +3,16 @@ INSTALL
 ===========================
 The .jar file should be placed in /WEB-INF/lib of the expanded jira webapplication
 in addition to any other libraries required by the plugin. Required libraries are:
- * Spring 1.1.5
+ * Spring 1.1.5+
 
 For the Portlet icons and thumbnails to work you should expand /portlet/** from the 
 .jar file to the expanded jira webapplication /portlet directory so the images
 can be accessed by the browser.
 
-Currently the database tables have to be created manually. You should run 
-createTables.sql against the java:comp/env/JiraDS database to create the necessary
-tables to hold the workload history.
-
 You probably need to restart the webapp for the libraries to be available. You can check
 whether or not the plugins (and thus the jar) have been loaded from 
 ADMINISTRATION - SYSTEM - Plugins. You should see "LaughingPanda" under the installed 
 plugins.
-
-If your installation is not the standalone version of JIRA, the webapp is not probably installed in 
-root of the server. In this case you need to modify the ChartPortlet.properties -file inside the
-.jar. The properties file contains a property named "servlet.url.DisplayChart". You should set this
-string to contain the server path part of the url to the DisplayChart Servlet. For example if your
-webapp is installed under /jira, you should set this value to /jira/charts.
 
 Jira administration:
 --------------------

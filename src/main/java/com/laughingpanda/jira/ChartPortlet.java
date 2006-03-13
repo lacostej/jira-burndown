@@ -60,7 +60,8 @@ public class ChartPortlet extends PortletImpl {
             width = config.getLongProperty("chart.width").intValue();
             height = config.getLongProperty("chart.height").intValue();
             versionId = config.getLongProperty("versionId");
-            if (config.hasProperty("startDate")) startDate = getIsoDateFormatter().parse(config.getProperty("startDate"));
+            String date = config.getProperty("startDate");
+            if (date != null) startDate = getIsoDateFormatter().parse(date);
             else startDate = new Date(0);
         } catch (Exception e) {
             throw new RuntimeException("Error in portlet configuration.", e);
