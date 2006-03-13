@@ -7,14 +7,23 @@ package com.laughingpanda.jira;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Predicate;
+import org.apache.commons.collections.PredicateUtils;
+import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.log4j.Category;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -23,29 +32,40 @@ import org.springframework.jdbc.core.RowMapper;
  * @author Jukka Lindstrom
  * @author Markus Hjort
  */
-public class VersionWorkloadHistoryManagerImpl implements
-        VersionWorkloadHistoryManager {
+public class VersionWorkloadHistoryManagerImpl implements VersionWorkloadHistoryManager {
 
     private JdbcTemplate template;
+
+    Map<Long, Pair> startPointsForVersions = new HashMap<Long, Pair>();
+    Map<Long, Pair> lastPointsForVersions = new HashMap<Long, Pair>();
 
     public static DataSource getJNDIDataSource() {
         try {
             Context initialContext = new InitialContext();
-            if (initialContext == null) {
-                throw new RuntimeException("Init: Cannot get Initial Context");
-            }
+            if (initialContext == null) { throw new RuntimeException("Init: Cannot get Initial Context"); }
             return (DataSource) initialContext.lookup("java:comp/env/jdbc/JiraDS");
         } catch (NamingException ex) {
             throw new RuntimeException("Init: Cannot get connection.", ex);
         }
     }
-    
+
     public VersionWorkloadHistoryManagerImpl() {
         this(getJNDIDataSource());
     }
-    
+
     public VersionWorkloadHistoryManagerImpl(DataSource datasource) {
         template = new JdbcTemplate(datasource);
+        createTablesIfNotExists();
+    }
+
+    private void createTablesIfNotExists() {
+        try {
+            template.execute("SELECT * FROM version_workload_history");
+        } catch (Exception e) {
+            try {
+                template.execute("CREATE TABLE version_workload_history (versionID DECIMAL(18,0), remainingTime DECIMAL(18,0), totalTime DECIMAL(18,0), remainingIssues DECIMAL(18,0), totalIssues DECIMAL(18,0), time TIMESTAMP)");
+            } catch (Exception ex) {};
+        }
     }
 
     static final RowMapper mapper = new RowMapper() {
@@ -61,29 +81,66 @@ public class VersionWorkloadHistoryManagerImpl implements
         }
     };
 
-    public void storeWorkload(VersionWorkloadHistoryPoint point) {
+    public synchronized void storeWorkload(VersionWorkloadHistoryPoint point) {
         log.debug("Storing workload point.");
-        template.update(
-                "INSERT INTO version_workload_history (versionId, time, remainingTime, remainingIssues, totalTime, totalIssues) VALUES (?,?,?,?,?,?)", 
-                new Object[] { point.versionId, point.measureTime, point.remainingTime, point.remainingIssues, point.totalTime, point.totalIssues }
-        );
+        if (!lastPointsForVersions.containsKey(point.versionId)) {
+            lastPointsForVersions.put(point.versionId, new Pair<VersionWorkloadHistoryPoint>(point, point));
+        }
+
+        Pair<VersionWorkloadHistoryPoint> range = lastPointsForVersions.get(point.versionId);
+        if (!range.isStartOnly() && measurementsEqual(point, range.end)) {
+            template.update("UPDATE version_workload_history SET time = ? WHERE versionId = ? AND time = ?", new Object[] { point.measureTime, point.versionId, range.end.measureTime });
+        } else {
+            insert(point);
+            if (!range.isStartOnly()) range.start = point;
+        }
+        range.end = point;
         template.update("COMMIT");
     }
-    
-    private final Category log = Category.getInstance(VersionWorkloadHistoryManagerImpl.class);
 
-    public List<VersionWorkloadHistoryPoint> getWorkloadStartingFromMaxDateBeforeGivenDate(Long versionId, Date startDate) {
-        log.debug("Retrieving workload for version '" + versionId + "' with startDate '" + startDate + "'.");
-        
-        // Note! We use two sql clauses here but this can be implemented using single sql query with subselects.
-        // However older versions of MySQL (prior 4.1) do not support this feature.  
-        Date latestHistoryPointBeforeStartDate = 
-            (Date) template.queryForObject("SELECT MAX(time) FROM version_workload_history WHERE versionId = ? AND time < ? ",
-            new Object[] {versionId, startDate}, Date.class);
-        
-        return template.query(
-                "SELECT * FROM version_workload_history WHERE versionId = ? AND (time >= ? OR time = ?)",
-                new Object[] { versionId, startDate, latestHistoryPointBeforeStartDate }, mapper);
+    private void insert(VersionWorkloadHistoryPoint point) {
+        template.update("INSERT INTO version_workload_history (versionId, time, remainingTime, remainingIssues, totalTime, totalIssues) VALUES (?,?,?,?,?,?)", new Object[] { point.versionId, point.measureTime, point.remainingTime, point.remainingIssues, point.totalTime, point.totalIssues });
     }
 
+    private boolean measurementsEqual(VersionWorkloadHistoryPoint point, VersionWorkloadHistoryPoint last) {
+        return new EqualsBuilder().append(point.remainingIssues, last.remainingIssues).append(point.remainingTime, last.remainingTime).append(point.totalIssues, last.totalIssues).append(point.totalTime, last.totalTime).isEquals();
+    }
+
+    private final Category log = Category.getInstance(VersionWorkloadHistoryManagerImpl.class);
+
+    public List<VersionWorkloadHistoryPoint> getWorkloadStartingFromMaxDateBeforeGivenDate(Long versionId, final Date startDate) {
+        log.debug("Retrieving workload for version '" + versionId + "' with startDate '" + startDate + "'.");
+        List<VersionWorkloadHistoryPoint> all = template.query("SELECT * FROM version_workload_history WHERE versionId = ? ORDER BY time", new Object[] { versionId }, mapper);
+
+        Predicate predicate = new Predicate() {
+            public boolean evaluate(Object arg0) {
+                return (((VersionWorkloadHistoryPoint) arg0).measureTime.before(startDate));
+            }
+        };
+
+        List<VersionWorkloadHistoryPoint> points = new ArrayList<VersionWorkloadHistoryPoint>();
+        CollectionUtils.select(all, PredicateUtils.notPredicate(predicate), points);
+
+        Collection<VersionWorkloadHistoryPoint> beforeCutOff = CollectionUtils.select(all, predicate);
+        if (beforeCutOff.size() > 0) {
+            points.add(0, Collections.max(beforeCutOff)); 
+        }
+        return Collections.unmodifiableList(points);
+    }
+
+}
+
+class Pair<T> {
+
+    public Pair(T start, T end) {
+        this.start = start;
+        this.end = end;
+    }
+
+    T start;
+    T end;
+
+    boolean isStartOnly() {
+        return start.equals(end);
+    }
 }

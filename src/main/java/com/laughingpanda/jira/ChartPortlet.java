@@ -60,7 +60,8 @@ public class ChartPortlet extends PortletImpl {
             width = config.getLongProperty("chart.width").intValue();
             height = config.getLongProperty("chart.height").intValue();
             versionId = config.getLongProperty("versionId");
-            startDate = getIsoDateFormatter().parse(config.getProperty("startDate"));
+            if (config.hasProperty("startDate")) startDate = getIsoDateFormatter().parse(config.getProperty("startDate"));
+            else startDate = new Date(0);
         } catch (Exception e) {
             throw new RuntimeException("Error in portlet configuration.", e);
         }
@@ -87,6 +88,7 @@ public class ChartPortlet extends PortletImpl {
             model.put("chartFilename", imageFile.getName());
             model.put("imageMapName", imageFile.getName());
             model.put("imageMap", imageMap.toString());
+            model.put("versionId", versionId.toString());
         } catch (Exception e) {
             log.log(Priority.ERROR, e);
             throw new RuntimeException(e);
