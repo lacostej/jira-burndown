@@ -4,7 +4,7 @@
 	<plugin-info>
 		<description>LaughingPanda</description>
 		<version>0.2</version>
-		<application-version min="3.0" max="3.0"/>
+		<application-version min="3.0" max="3.6"/>
 		<vendor name="Laughing Panda" url="http://www.laughingpanda.org"/>
 	</plugin-info>
 	<portlet key="versionWorkloadChart" name="Chart Portlet" class="com.laughingpanda.jira.ChartPortlet">
@@ -36,6 +36,13 @@
 				<type>string</type>
 				<default>2006-01-01</default>
 			</property>
+			<property>
+				<key>typeId</key>
+				<name>service.versionworkloadhistory.field.customfield.name</name>
+				<description>service.versionworkloadhistory.field.customfield.description</description>
+				<type>select</type>
+				<values class="com.laughingpanda.jira.CustomFieldValuesGenerator" />
+			</property>			
 			<property>
 				<key>versionId</key>
                 <name>portlet.versionworkloadchart.field.version.name</name>

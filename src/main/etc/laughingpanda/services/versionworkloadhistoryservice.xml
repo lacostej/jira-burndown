@@ -1,5 +1,14 @@
 <versionworkloadhistoryservice>
-<description></description>
-<properties>
-</properties>
+	<resource type="i18n" name="i18n" location="com.laughingpanda.jira.versionWorkloadChart" />
+	<description key="service.versionworkloadhistory.description">i18n description</description>
+	<interface>com.laughingpanda.jira.VersionWorkloadHistoryManager</interface>
+	<properties>
+		<property>
+			<key>service.customFieldId</key>
+			<name>service.versionworkloadhistory.field.customfield.name</name>
+			<description>service.versionworkloadhistory.field.customfield.description</description>
+			<type>select</type>
+			<values class="com.laughingpanda.jira.CustomFieldValuesGenerator" />
+		</property>
+	</properties>
 </versionworkloadhistoryservice>

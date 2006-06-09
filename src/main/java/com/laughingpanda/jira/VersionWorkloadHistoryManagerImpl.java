@@ -33,8 +33,9 @@ import org.springframework.jdbc.core.RowMapper;
  * @author Markus Hjort
  */
 public class VersionWorkloadHistoryManagerImpl implements VersionWorkloadHistoryManager {
-
+    
     private JdbcTemplate template;
+    private final Category log = Category.getInstance(VersionWorkloadHistoryManagerImpl.class);
 
     Map<Long, Pair> startPointsForVersions = new HashMap<Long, Pair>();
     Map<Long, Pair> lastPointsForVersions = new HashMap<Long, Pair>();
@@ -55,16 +56,34 @@ public class VersionWorkloadHistoryManagerImpl implements VersionWorkloadHistory
 
     public VersionWorkloadHistoryManagerImpl(DataSource datasource) {
         template = new JdbcTemplate(datasource);
+        
+        // we'd really need some other kind of way to update the schemas
         createTablesIfNotExists();
+        update1();
+    }
+
+    private void update1() {
+        runUpdateIfNeeded(
+                "SELECT type FROM version_workload_history",
+                "ALTER TABLE version_workload_history ADD COLUMN type DECIMAL(18,0) DEFAULT -1"
+        );        
     }
 
     private void createTablesIfNotExists() {
+        runUpdateIfNeeded(
+                "SELECT * FROM version_workload_history", 
+                "CREATE TABLE version_workload_history (versionID DECIMAL(18,0), remainingTime DECIMAL(18,0), totalTime DECIMAL(18,0), remainingIssues DECIMAL(18,0), totalIssues DECIMAL(18,0), time TIMESTAMP)");
+    }
+
+    private void runUpdateIfNeeded(String testQuery, String updateQuery) {
         try {
-            template.execute("SELECT * FROM version_workload_history");
+            template.execute(testQuery);
         } catch (Exception e) {
             try {
-                template.execute("CREATE TABLE version_workload_history (versionID DECIMAL(18,0), remainingTime DECIMAL(18,0), totalTime DECIMAL(18,0), remainingIssues DECIMAL(18,0), totalIssues DECIMAL(18,0), time TIMESTAMP)");
-            } catch (Exception ex) {};
+                template.execute(updateQuery);
+            } catch (Exception ex) {
+                log.error("Update '" + updateQuery + "' failed.", e);
+            };
         }
     }
 
@@ -72,11 +91,12 @@ public class VersionWorkloadHistoryManagerImpl implements VersionWorkloadHistory
         public Object mapRow(ResultSet rs, int row) throws SQLException {
             VersionWorkloadHistoryPoint point = new VersionWorkloadHistoryPoint();
             point.measureTime = rs.getTimestamp("time");
-            point.remainingTime = rs.getLong("remainingTime");
+            point.remainingEffort = rs.getLong("remainingTime");
             point.remainingIssues = rs.getLong("remainingIssues");
-            point.totalTime = rs.getLong("totalTime");
+            point.totalEffort = rs.getLong("totalTime");
             point.totalIssues = rs.getLong("totalIssues");
             point.versionId = rs.getLong("versionId");
+            point.type = rs.getLong("type");
             return point;
         }
     };
@@ -99,18 +119,17 @@ public class VersionWorkloadHistoryManagerImpl implements VersionWorkloadHistory
     }
 
     private void insert(VersionWorkloadHistoryPoint point) {
-        template.update("INSERT INTO version_workload_history (versionId, time, remainingTime, remainingIssues, totalTime, totalIssues) VALUES (?,?,?,?,?,?)", new Object[] { point.versionId, point.measureTime, point.remainingTime, point.remainingIssues, point.totalTime, point.totalIssues });
+        template.update("INSERT INTO version_workload_history (versionId, time, remainingTime, remainingIssues, totalTime, totalIssues, type) VALUES (?,?,?,?,?,?,?)", new Object[] { point.versionId, point.measureTime, point.remainingEffort, point.remainingIssues, point.totalEffort, point.totalIssues, point.type });
     }
 
     private boolean measurementsEqual(VersionWorkloadHistoryPoint point, VersionWorkloadHistoryPoint last) {
-        return new EqualsBuilder().append(point.remainingIssues, last.remainingIssues).append(point.remainingTime, last.remainingTime).append(point.totalIssues, last.totalIssues).append(point.totalTime, last.totalTime).isEquals();
+        return new EqualsBuilder().append(point.remainingIssues, last.remainingIssues).append(point.remainingEffort, last.remainingEffort).append(point.totalIssues, last.totalIssues).append(point.totalEffort, last.totalEffort).append(point.type, last.type).isEquals();
     }
 
-    private final Category log = Category.getInstance(VersionWorkloadHistoryManagerImpl.class);
 
-    public List<VersionWorkloadHistoryPoint> getWorkloadStartingFromMaxDateBeforeGivenDate(Long versionId, final Date startDate) {
+    public List<VersionWorkloadHistoryPoint> getWorkloadStartingFromMaxDateBeforeGivenDate(Long versionId, Long type, final Date startDate) {
         log.debug("Retrieving workload for version '" + versionId + "' with startDate '" + startDate + "'.");
-        List<VersionWorkloadHistoryPoint> all = template.query("SELECT * FROM version_workload_history WHERE versionId = ? ORDER BY time", new Object[] { versionId }, mapper);
+        List<VersionWorkloadHistoryPoint> all = template.query("SELECT * FROM version_workload_history WHERE versionId = ? AND type = ? ORDER BY time", new Object[] { versionId, type }, mapper);
 
         Predicate predicate = new Predicate() {
             public boolean evaluate(Object arg0) {

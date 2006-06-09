@@ -15,7 +15,7 @@ import java.util.List;
  */
 public interface VersionWorkloadHistoryManager {
 
-    public List<VersionWorkloadHistoryPoint> getWorkloadStartingFromMaxDateBeforeGivenDate(Long versionId, Date startDate);
+    public List<VersionWorkloadHistoryPoint> getWorkloadStartingFromMaxDateBeforeGivenDate(Long versionId, Long type, Date startDate);
     
     public void storeWorkload(VersionWorkloadHistoryPoint point);
 

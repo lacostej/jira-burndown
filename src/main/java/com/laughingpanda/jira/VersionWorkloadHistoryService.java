@@ -11,6 +11,7 @@ import java.util.Date;
 import org.apache.commons.collections.Closure;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
+import org.apache.commons.collections.Transformer;
 import org.apache.log4j.Category;
 import org.ofbiz.core.entity.GenericEntityException;
 import org.ofbiz.core.entity.GenericValue;
@@ -19,6 +20,9 @@ import com.atlassian.configurable.ObjectConfiguration;
 import com.atlassian.configurable.ObjectConfigurationException;
 import com.atlassian.jira.ComponentManager;
 import com.atlassian.jira.ManagerFactory;
+import com.atlassian.jira.issue.DefaultIssueFactory;
+import com.atlassian.jira.issue.IssueFactory;
+import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.issue.search.SearchRequestManager;
 import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.jira.project.version.Version;
@@ -27,11 +31,27 @@ import com.atlassian.jira.service.AbstractService;
 import com.opensymphony.module.propertyset.PropertySet;
 
 public class VersionWorkloadHistoryService extends AbstractService {
-    
+
     public static final String CONFIG_PATH = "laughingpanda/services/versionworkloadhistoryservice.xml";
     public static final String COMPONENT_ID = "VERSIONWORKLOADHISTORYSERVICE";
-    
+
     private final class StoreHistoryClosure implements Closure {
+
+        private final IssueTransformer issueTransformer;
+        private IssueFactory issueFactory = new DefaultIssueFactory(
+                ComponentManager.getInstance().getIssueManager(), 
+                ComponentManager.getInstance().getProjectManager(),
+                ComponentManager.getInstance().getVersionManager(), 
+                ManagerFactory.getIssueSecurityLevelManager(), 
+                ComponentManager.getInstance().getConstantsManager(), 
+                ComponentManager.getInstance().getSubTaskManager(),
+                ComponentManager.getInstance().getFieldManager()
+        );
+                
+        public StoreHistoryClosure(IssueTransformer issueTransformer) {
+            this.issueTransformer = issueTransformer;
+        }
+
         public void execute(Object object) {
             try {
                 VersionWorkloadHistoryPoint point = createVersionWorkloadPoint((Version) object);
@@ -42,38 +62,22 @@ public class VersionWorkloadHistoryService extends AbstractService {
         }
 
         private VersionWorkloadHistoryPoint createVersionWorkloadPoint(Version version) throws GenericEntityException {
-            log.debug("Calculating workload for version : " + version.getName());            
-            Collection<GenericValue> issues = versionManager.getFixIssues(version);
-            VersionWorkloadHistoryPoint point = new VersionWorkloadHistoryPoint();
-            point.versionId = version.getId();
-            point.measureTime = new Date();
-            for (GenericValue issue : issues) {
+            log.debug("Calculating workload for version : " + version.getName());
+            Collection<MutableIssue> issues = issueFactory.getIssues(versionManager.getFixIssues(version));
+
+            VersionWorkloadHistoryPoint total = new VersionWorkloadHistoryPoint();
+            total.versionId = version.getId();
+            total.measureTime = new Date();
+            total.type = issueTransformer.getTypeId();
+            for (MutableIssue issue : issues) {
                 if (issue == null) continue;
-                point.totalIssues++;
-                if (issue.getLong("timeoriginalestimate") != null)
-                    point.totalTime += issue.getLong("timeoriginalestimate").longValue();
-
-                if (issue.get("resolution") == null) {
-                    point.remainingIssues++;
-                    if (issue.getLong("timeestimate") != null)
-                        point.remainingTime += issue.getLong("timeestimate").longValue();
-                }
+                VersionWorkloadHistoryPoint point = (VersionWorkloadHistoryPoint) issueTransformer.transform(issue);
+                if (point == null) continue;                
+                total.add(point);
             }
-            return point;
+            return total;
         }
-    }
-    
-    static private final class VersionFilter implements Predicate {
-        public boolean evaluate(Object object) {
-            Version version = (Version) object;
-            return !(version == null || version.isArchived() || version.isReleased());
-        }
-    }
 
-    static private final class AllFilter implements Predicate {
-        public boolean evaluate(Object arg0) {
-            return true;
-        }
     }
 
     private final Category log = Category.getInstance(VersionWorkloadHistoryService.class);
@@ -81,6 +85,8 @@ public class VersionWorkloadHistoryService extends AbstractService {
     private final SearchRequestManager searchManager;
     private final VersionManager versionManager;
     private final ProjectManager projectManager;
+
+    private Closure issueClosure;
 
     public VersionWorkloadHistoryService() {
         log.info("Creating.");
@@ -93,6 +99,7 @@ public class VersionWorkloadHistoryService extends AbstractService {
             if (projectManager == null) throw new RuntimeException("ProjectManager cannot be null.");
             this.versionHistoryManager = (VersionWorkloadHistoryManager) ComponentManager.getInstance().getContainer().getComponentInstanceOfType(VersionWorkloadHistoryManager.class);
             if (versionHistoryManager == null) throw new RuntimeException("VersionWorkloadHistoryManager cannot be null.");
+
         } catch (RuntimeException e) {
             log.error(e);
             throw e;
@@ -101,13 +108,23 @@ public class VersionWorkloadHistoryService extends AbstractService {
     }
 
     public void init(PropertySet propertySet) throws ObjectConfigurationException {
+        super.init(propertySet);
         log.info("Initializing.");
+        IssueTransformer issueTransformer = resolveTransformer(propertySet);
+        issueClosure = new StoreHistoryClosure(issueTransformer);
+    }
+
+    private IssueTransformer resolveTransformer(PropertySet propertySet) throws ObjectConfigurationException {
+        if (!hasProperty("service.customFieldId")) return new EstimateTransformer();
+        Long id = Long.parseLong(getProperty("service.customFieldId"));
+        if (id == null || id < 0) return new EstimateTransformer();
+        return new StoryPointTransformer(ManagerFactory.getCustomFieldManager().getCustomFieldObject(id));
     }
 
     public void run() {
         log.info("Running.");
         try {
-            processVersions(new StoreHistoryClosure(), new VersionFilter());
+            processVersions(issueClosure, new ActiveVersionFilter());
         } catch (Exception e) {
             log.error(e);
         }

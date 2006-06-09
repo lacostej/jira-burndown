@@ -55,11 +55,18 @@ public class ChartPortlet extends PortletImpl {
         int width = 500;
         int height = 300;
         Long versionId = null;
+        Long typeId = -1L;
         Date startDate = null;
         try {
             width = config.getLongProperty("chart.width").intValue();
             height = config.getLongProperty("chart.height").intValue();
             versionId = config.getLongProperty("versionId");
+            String type = config.getProperty("typeId");
+            if (type != null) {
+                try {
+                    typeId = Long.parseLong(type);
+                } catch (Exception e) {}
+            }
             String date = config.getProperty("startDate");
             if (date != null) startDate = getIsoDateFormatter().parse(date);
             else startDate = new Date(0);
@@ -67,6 +74,7 @@ public class ChartPortlet extends PortletImpl {
             throw new RuntimeException("Error in portlet configuration.", e);
         }
         if (versionId == null) return error(model, "Version (" + versionId + ") is not available.");
+        if (typeId == null) typeId = -1L;
         if (versionId.longValue() < 0l) return error(model, "Please, choose a version. Full Projects are not supported");
 
         Collection browsableProjects = permissionManager.getProjects(Permissions.BROWSE, authenticationContext.getUser());
@@ -78,9 +86,9 @@ public class ChartPortlet extends PortletImpl {
         try {
             ChartRenderingInfo info = new ChartRenderingInfo(new StandardEntityCollection());
             createTempDir();
-            File imageFile = new File(new File(System.getProperty("java.io.tmpdir")), createFileName(width, height, versionId, startDate));
+            File imageFile = new File(new File(System.getProperty("java.io.tmpdir")), createFileName(width, height, versionId, typeId, startDate));
             if (createNewImage(imageFile)) {
-                JFreeChart chart = chartService.makeChart(version, startDate);
+                JFreeChart chart = chartService.makeChart(version, typeId, startDate);
                 saveImage(imageFile, width, height, chart, info);
             }
 
@@ -106,8 +114,8 @@ public class ChartPortlet extends PortletImpl {
         return new SimpleDateFormat("yyyy-MM-dd");
     }
 
-    private String createFileName(int width, int height, Long versionId, Date startDate) {
-        return "public" + versionId + "-" + getIsoDateFormatter().format(startDate) + "-" + width + "x" + height + ".png";
+    private String createFileName(int width, int height, Long versionId, Long type, Date startDate) {
+        return "public" + versionId + "-" + type + "-" + getIsoDateFormatter().format(startDate) + "-" + width + "x" + height + ".png";
     }
 
     private boolean createNewImage(File imageFile) {

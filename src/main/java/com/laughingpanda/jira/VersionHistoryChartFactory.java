@@ -25,6 +25,7 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.util.ShapeUtilities;
 
+import com.atlassian.jira.ManagerFactory;
 import com.atlassian.jira.project.version.Version;
 
 class VersionHistoryChartFactory {
@@ -41,17 +42,24 @@ class VersionHistoryChartFactory {
     /**
      * Creates a chart from the version.
      */
-    protected JFreeChart makeChart(Version version, Date startDate) {
-        XYSeriesCollection xyDataset = createSeries(version, startDate);        
+    protected JFreeChart makeChart(Version version, Long type, Date startDate) {
+        XYSeriesCollection xyDataset = createSeries(version, type, startDate);        
         StandardXYItemRenderer renderer = createRenderer();
         
         DateAxis timeAxis = new DateAxis("");
-        timeAxis.setTimeline(SegmentedTimeline.newMondayThroughFridayTimeline());        
-        NumberAxis valueAxis = new NumberAxis("Hours of Work");
+        timeAxis.setTimeline(SegmentedTimeline.newMondayThroughFridayTimeline());    
+        
+        
+        NumberAxis valueAxis = new NumberAxis(resolveValueAxisName(type));
         valueAxis.setAutoRangeIncludesZero(true);
 
         XYPlot plot = new XYPlot(xyDataset, timeAxis, valueAxis, renderer);        
         return createChart(version, plot);
+    }
+
+    private String resolveValueAxisName(Long type) {
+        if (type == -1L) return "Hours of Work";
+        return ManagerFactory.getCustomFieldManager().getCustomFieldObject(type).getName();
     }
 
     private JFreeChart createChart(Version version, XYPlot plot) {
@@ -87,9 +95,9 @@ class VersionHistoryChartFactory {
         return renderer;
     }
 
-    private XYSeriesCollection createSeries(Version version, Date startDate) {
+    private XYSeriesCollection createSeries(Version version, Long type, Date startDate) {
         List<VersionWorkloadHistoryPoint> workloadPoints = 
-            historyManager.getWorkloadStartingFromMaxDateBeforeGivenDate(version.getId(), startDate); 
+            historyManager.getWorkloadStartingFromMaxDateBeforeGivenDate(version.getId(), type, startDate); 
         setFirstWorkLoadPointToStartDate(startDate, workloadPoints);
         XYSeriesCollection xyDataset = new XYSeriesCollection();
         xyDataset.addSeries(makeSeries(workloadPoints, new RemainingTime()));
@@ -128,13 +136,15 @@ class VersionHistoryChartFactory {
     
     static class RemainingTime implements Evaluator {        
         public Number valueOf(VersionWorkloadHistoryPoint point) {
-            return point.remainingTime / SECONDS_PER_HOUR;
+            if (point.type == -1L) return point.remainingEffort / SECONDS_PER_HOUR;
+            return point.remainingEffort;            
         }
     }
     
     static class TotalTime implements Evaluator {
         public Number valueOf(VersionWorkloadHistoryPoint point) {
-            return point.totalTime / SECONDS_PER_HOUR;
+            if (point.type == -1L) return point.totalEffort / SECONDS_PER_HOUR;
+            return point.totalEffort;
         }
     }
     

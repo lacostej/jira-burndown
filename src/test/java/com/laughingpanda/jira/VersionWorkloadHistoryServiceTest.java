@@ -12,6 +12,6 @@ public class VersionWorkloadHistoryServiceTest extends TestCase {
         XMLObjectConfigurationFactory factory = new XMLObjectConfigurationFactory();
         factory.loadObjectConfiguration(VersionWorkloadHistoryService.CONFIG_PATH, VersionWorkloadHistoryService.COMPONENT_ID);
         ObjectConfiguration configuration = factory.getObjectConfiguration(VersionWorkloadHistoryService.COMPONENT_ID, null);
-        assertEquals(0,configuration.getFieldKeys().length);
+        assertEquals(1,configuration.getFieldKeys().length);
     }
 }

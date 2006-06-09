@@ -9,13 +9,13 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.apache.commons.collections.SequencedHashMap;
+import org.apache.commons.collections.map.ListOrderedMap;
 import org.apache.log4j.Category;
 import org.ofbiz.core.entity.GenericValue;
 
 import com.atlassian.configurable.ValuesGenerator;
 import com.atlassian.jira.ComponentManager;
 import com.atlassian.jira.ManagerFactory;
-import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.jira.project.version.Version;
 import com.atlassian.jira.project.version.VersionManager;
 import com.atlassian.jira.security.PermissionManager;
@@ -36,8 +36,12 @@ public class AllVersionValuesGenerator implements ValuesGenerator {
     private PermissionManager permissionManager;
 
     public AllVersionValuesGenerator() {
-        setVersionManager(ComponentManager.getInstance().getVersionManager());
-        setPermissionManager(ManagerFactory.getPermissionManager());
+        this(ComponentManager.getInstance().getVersionManager(), ManagerFactory.getPermissionManager());
+    }
+    
+    public AllVersionValuesGenerator(VersionManager versionManager, PermissionManager permissionManager) {
+        setVersionManager(versionManager);
+        setPermissionManager(permissionManager);
     }
 
     public void setVersionManager(VersionManager versionManager) {
@@ -48,22 +52,23 @@ public class AllVersionValuesGenerator implements ValuesGenerator {
         this.permissionManager = permissionManager;
     }
 
+    @SuppressWarnings("unchecked")
     public Map getValues(Map params) {
         User u = (User) params.get("User");                
-        Map<Long,String> selection = new SequencedHashMap();
+        Map<Long,String> options = new ListOrderedMap();
         try {
             Collection<GenericValue> projects = permissionManager.getProjects(Permissions.BROWSE, u);
             for (GenericValue project : projects) {
-                selection.put(new Long(-project.getLong("id").longValue()), project.getString("name"));
+                options.put(new Long(-project.getLong("id").longValue()), project.getString("name"));
                 Collection<Version> versions = versionManager.getVersions(project);
                 for (Version version : versions) {
-                    selection.put(version.getId(), "- " + version.getName());
+                    options.put(version.getId(), "- " + version.getName());
                 }
             }
         } catch (Exception e) {
             log.error(e);
         }
-        return selection;
+        return options;
     }
 
 }

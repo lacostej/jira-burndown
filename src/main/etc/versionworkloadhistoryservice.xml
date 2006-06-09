@@ -1,0 +1,19 @@
+<atlassian-plugin id="versionWorkloadHistoryService">
+	<component key="versionWorkloadHistoryManager" name="Version Workload History Manager" class="com.laughingpanda.jira.VersionWorkloadHistoryManagerImpl">
+        <resource type="i18n" name="i18n" location="com.laughingpanda.jira.versionWorkloadChart" />
+        <description key="service.versionworkloadhistory.description">
+			Service to collect information for burndown graphs. If you select 'Use builtin Estimate fields' 
+			the burndown information will be calculated from the 'Time Tracking' estimate fields.
+		</description>		
+		<interface>com.laughingpanda.jira.VersionWorkloadHistoryManager</interface>
+		<properties>
+			<property>
+				<key>service.customFieldId</key>
+				<name>Burndown calculation field</name>
+				<description>Method to use for collecting burndown information.</description>
+				<type>select</type>
+				<values class="com.laughingpanda.jira.CustomFieldValuesGenerator" />
+			</property>
+		</properties>
+	</component>	
+</atlassian-plugin>

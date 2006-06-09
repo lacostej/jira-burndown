@@ -104,7 +104,7 @@ public class ChartPortletTest extends TestCase {
             return versions.get(id);
         }
 
-        public List<VersionWorkloadHistoryPoint> getWorkloadStartingFromMaxDateBeforeGivenDate(Long versionId, Date startDate) {
+        public List<VersionWorkloadHistoryPoint> getWorkloadStartingFromMaxDateBeforeGivenDate(Long versionId, Long type, Date startDate) {
             return new LinkedList<VersionWorkloadHistoryPoint>();
         }
     }
@@ -166,8 +166,8 @@ public class ChartPortletTest extends TestCase {
 
     public void testBasic() {
         Map params = portlet.getVelocityParams(config);
-        assertEquals("public1-2005-01-01-640x400.png", params.get("chartFilename"));
-        assertEquals("public1-2005-01-01-640x400.png", params.get("imageMapName"));
+        assertEquals("public1--1-2005-01-01-640x400.png", params.get("chartFilename"));
+        assertEquals("public1--1-2005-01-01-640x400.png", params.get("imageMapName"));
         assertEquals("1", params.get("versionId"));
         assertFalse(params.containsKey("errorMessage"));
         assertEquals(true, params.get("loggedin"));
@@ -183,8 +183,8 @@ public class ChartPortletTest extends TestCase {
     public void testNoStartDateConfigured() {
         config.properties.remove("startDate");
         Map params = portlet.getVelocityParams(config);
-        assertEquals("public1-1970-01-01-640x400.png", params.get("chartFilename"));
-        assertEquals("public1-1970-01-01-640x400.png", params.get("imageMapName"));
+        assertEquals("public1--1-1970-01-01-640x400.png", params.get("chartFilename"));
+        assertEquals("public1--1-1970-01-01-640x400.png", params.get("imageMapName"));
         assertFalse(params.containsKey("errorMessage"));
     }
 
