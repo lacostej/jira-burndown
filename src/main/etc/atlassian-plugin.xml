@@ -13,7 +13,7 @@
         <resource type="velocity" name="view" location="templates/versionWorkloadChart.vm" />
 		<label key="portlet.versionworkloadchart.label" />
 		<thumbnail>portlets/dashboard/thumbnails/laughingpanda/burndown.png</thumbnail>
-		<permission>assignable</permission>
+		<permission>browse</permission>
 		<properties>
 			<property>
 				<key>chart.width</key>
