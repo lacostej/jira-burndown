@@ -65,7 +65,7 @@ public class VersionWorkloadHistoryManagerImpl implements VersionWorkloadHistory
     private void update1() {
         runUpdateIfNeeded(
                 "SELECT type FROM version_workload_history",
-                "ALTER TABLE version_workload_history ADD COLUMN type DECIMAL(18,0) DEFAULT -1"
+                "ALTER TABLE version_workload_history ADD COLUMN type DECIMAL(18,0) DEFAULT NULL"
         );        
     }
 

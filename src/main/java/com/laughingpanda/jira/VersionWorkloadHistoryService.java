@@ -11,7 +11,6 @@ import java.util.Date;
 import org.apache.commons.collections.Closure;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
-import org.apache.commons.collections.Transformer;
 import org.apache.log4j.Category;
 import org.ofbiz.core.entity.GenericEntityException;
 import org.ofbiz.core.entity.GenericValue;
@@ -45,7 +44,9 @@ public class VersionWorkloadHistoryService extends AbstractService {
                 ManagerFactory.getIssueSecurityLevelManager(), 
                 ComponentManager.getInstance().getConstantsManager(), 
                 ComponentManager.getInstance().getSubTaskManager(),
-                ComponentManager.getInstance().getFieldManager()
+                ComponentManager.getInstance().getFieldManager(),
+                ComponentManager.getInstance().getAttachmentManager(),
+                ComponentManager.getInstance().getProjectFactory()
         );
                 
         public StoreHistoryClosure(IssueTransformer issueTransformer) {

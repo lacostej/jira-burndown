@@ -181,6 +181,7 @@ public class ChartPortletTest extends TestCase {
     }
 
     public void testNoStartDateConfigured() {
+
         config.properties.remove("startDate");
         Map params = portlet.getVelocityParams(config);
         assertEquals("public1--1-1970-01-01-640x400.png", params.get("chartFilename"));

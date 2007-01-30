@@ -3,8 +3,8 @@
 	<!-- a short block describing the plugin itself -->
 	<plugin-info>
 		<description>LaughingPanda</description>
-		<version>0.2</version>
-		<application-version min="3.0" max="3.6"/>
+		<version>0.2-SNAPSHOT-2</version>
+		<application-version min="3.7" max="3.7"/>
 		<vendor name="Laughing Panda" url="http://www.laughingpanda.org"/>
 	</plugin-info>
 	<portlet key="versionWorkloadChart" name="Chart Portlet" class="com.laughingpanda.jira.ChartPortlet">

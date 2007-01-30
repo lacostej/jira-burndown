@@ -1,40 +1,40 @@
-<?xml version='1.0' encoding='ISO-8859-1'?>
+<?xml version='1.0' encoding='UTF-8'?>
 <project>
 	<pomVersion>3</pomVersion>
 	<dependencies>
 		<dependency>
 			<id>atlassian-jira</id>
-			<version>3.4.2</version>
+			<version>3.7.1</version>
 		</dependency>
 		<!-- Atlassian source dependencies -->
 		<dependency>
 			<id>atlassian-core</id>
-			<version>2.4.5</version>
+			<version>2006-12-04</version>
 			<properties>
 				<war.bundle>true</war.bundle>
 				<atlassian.ship>source</atlassian.ship>
-				<atlassian.cvs.tag>atlassian_core_2_4_5</atlassian.cvs.tag>
+				<atlassian.cvs.tag>atlassian_core_2006_12_04</atlassian.cvs.tag>
 			</properties>
 		</dependency>
 		<dependency>
 			<groupId>atlassian-bandana</groupId>
 			<artifactId>atlassian-bandana</artifactId>
 			<id>atlassian-bandana</id>
-			<version>0.1.12</version>
+			<version>0.1.13</version>
 			<properties>
 				<war.bundle>true</war.bundle>
 				<atlassian.ship>source</atlassian.ship>
 				<atlassian.module.dir>bandana</atlassian.module.dir>
-				<atlassian.cvs.tag>atlassian_bandana_0_1_12</atlassian.cvs.tag>
+				<atlassian.cvs.tag>atlassian_bandana_0_1_13</atlassian.cvs.tag>
 			</properties>
 		</dependency>
 		<dependency>
 			<id>atlassian-ofbiz</id>
-			<version>0.3.5</version>
+			<version>0.3.8</version>
 			<properties>
 				<war.bundle>true</war.bundle>
 				<atlassian.ship>source</atlassian.ship>
-				<atlassian.cvs.tag>atlassian_ofbiz_0_3_5</atlassian.cvs.tag>
+				<atlassian.cvs.tag>atlassian_ofbiz_0_3_8</atlassian.cvs.tag>
 			</properties>
 		</dependency>
 		<dependency>
@@ -48,83 +48,102 @@
 			</properties>
 		</dependency>
 		<dependency>
-			<id>atlassian-configurableobjects</id>
-			<version>0.4.18</version>
-			<properties>
-				<war.bundle>true</war.bundle>
-				<atlassian.ship>source</atlassian.ship>
-				<atlassian.module.dir>configurableobjects</atlassian.module.dir>
-				<atlassian.cvs.tag>atlassian_configurable_objects_0_4_18</atlassian.cvs.tag>
-			</properties>
-		</dependency>
-		<dependency>
-			<id>atlassian-mail</id>
-			<version>1.3.12</version>
-			<properties>
-				<war.bundle>true</war.bundle>
-				<atlassian.ship>source</atlassian.ship>
-				<atlassian.module.dir>mail</atlassian.module.dir>
-				<atlassian.cvs.tag>atlassian_mail_1_3_12</atlassian.cvs.tag>
-			</properties>
-		</dependency>
-		<dependency>
-			<id>atlassian-scheduler</id>
-			<version>0.7.15</version>
-			<properties>
-				<war.bundle>true</war.bundle>
-				<atlassian.ship>source</atlassian.ship>
-				<atlassian.module.dir>scheduler</atlassian.module.dir>
-				<atlassian.cvs.tag>atlassian_scheduler_0_7_15</atlassian.cvs.tag>
-			</properties>
-		</dependency>
-		<dependency>
-			<id>atlassian-velocity</id>
-			<version>0.3.14</version>
-			<properties>
-				<war.bundle>true</war.bundle>
-				<atlassian.ship>source</atlassian.ship>
-				<atlassian.module.dir>atlassian-velocity</atlassian.module.dir>
-				<atlassian.cvs.tag>atlassian_velocity_0_3_14</atlassian.cvs.tag>
-			</properties>
-		</dependency>
-		<dependency>
-			<id>atlassian-johnson</id>
-			<version>0.5.12</version>
-			<properties>
-				<war.bundle>true</war.bundle>
-				<atlassian.ship>source</atlassian.ship>
-				<atlassian.module.dir>johnson</atlassian.module.dir>
-				<atlassian.cvs.tag>atlassian_johnson_0_5_12</atlassian.cvs.tag>
-			</properties>
-		</dependency>
-		<dependency>
-			<id>atlassian-plugins</id>
-			<version>0.3.13</version>
-			<properties>
-				<war.bundle>true</war.bundle>
-				<atlassian.ship>source</atlassian.ship>
-				<atlassian.module.dir>plugins</atlassian.module.dir>
-				<atlassian.cvs.tag>atlassian_plugins_0_3_13</atlassian.cvs.tag>
-			</properties>
-		</dependency>
-		<dependency>
-			<id>seraph</id>
-			<version>0.7.15</version>
+			<id>atlassian-jdk-utilities</id>
+			<version>0.1</version>
 			<properties>
 				<war.bundle>true</war.bundle>
 				<atlassian.ship>source</atlassian.ship>
 				<atlassian.repo>svn</atlassian.repo>
-				<atlassian.cvs.tag>seraph_0_7_15</atlassian.cvs.tag>
+				<atlassian.cvs.tag>atlassian_jdk_utilities_0_1</atlassian.cvs.tag>
+			</properties>
+		</dependency>
+		<dependency>
+			<id>atlassian-configurableobjects</id>
+			<version>0.4.22</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+				<atlassian.ship>source</atlassian.ship>
+				<atlassian.module.dir>configurableobjects</atlassian.module.dir>
+				<atlassian.cvs.tag>atlassian_configurable_objects_0_4_22</atlassian.cvs.tag>
+			</properties>
+		</dependency>
+		<dependency>
+			<id>atlassian-mail</id>
+			<version>1.3.21</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+				<atlassian.ship>source</atlassian.ship>
+				<atlassian.module.dir>mail</atlassian.module.dir>
+				<atlassian.cvs.tag>atlassian_mail_1_3_21</atlassian.cvs.tag>
+			</properties>
+		</dependency>
+		<dependency>
+			<id>atlassian-scheduler</id>
+			<version>2006-10-24</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+				<atlassian.ship>source</atlassian.ship>
+				<atlassian.module.dir>scheduler</atlassian.module.dir>
+				<atlassian.cvs.tag>atlassian_scheduler_2006_10_24</atlassian.cvs.tag>
+			</properties>
+		</dependency>
+		<dependency>
+			<id>atlassian-velocity</id>
+			<version>0.3.19</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+				<atlassian.ship>source</atlassian.ship>
+				<atlassian.module.dir>atlassian-velocity</atlassian.module.dir>
+				<atlassian.cvs.tag>atlassian_velocity_0_3_19</atlassian.cvs.tag>
+			</properties>
+		</dependency>
+		<dependency>
+			<id>atlassian-johnson</id>
+			<version>2006-11-03</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+				<atlassian.ship>source</atlassian.ship>
+				<atlassian.module.dir>johnson</atlassian.module.dir>
+				<atlassian.cvs.tag>atlassian_johnson_2006_11_03</atlassian.cvs.tag>
+			</properties>
+		</dependency>
+		<dependency>
+			<id>atlassian-cache-servlet</id>
+			<version>0.5.4</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+				<atlassian.ship>source</atlassian.ship>
+				<atlassian.cvs.tag>atlassian_cache_servlet_0_5_4</atlassian.cvs.tag>
+			</properties>
+		</dependency>
+		<dependency>
+			<id>atlassian-plugins</id>
+			<version>2006-11-10</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+				<atlassian.ship>source</atlassian.ship>
+				<atlassian.module.dir>plugins</atlassian.module.dir>
+				<atlassian.cvs.tag>atlassian_plugins_2006_10_31</atlassian.cvs.tag>
+			</properties>
+		</dependency>
+		<dependency>
+			<id>seraph</id>
+			<version>0.7.21</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+				<atlassian.ship>source</atlassian.ship>
+				<atlassian.repo>svn</atlassian.repo>
+				<atlassian.cvs.tag>seraph_0_7_21</atlassian.cvs.tag>
 			</properties>
 		</dependency>
 		<!-- Atlassian jar dependencies -->
 		<dependency>
 			<id>atlassian-extras</id>
-			<version>0.7.13</version>
+			<version>0.7.29</version>
 			<properties>
 				<war.bundle>true</war.bundle>
 				<atlassian.module.dir>atlassian-extras</atlassian.module.dir>
-				<atlassian.cvs.tag>atlassian_extras_0_7_13</atlassian.cvs.tag>
+				<atlassian.cvs.tag>atlassian_extras_0_7_29</atlassian.cvs.tag>
 			</properties>
 		</dependency>
 		<dependency>
@@ -136,12 +155,21 @@
 		</dependency>
 		<dependency>
 			<id>atlassian-renderer</id>
-			<version>2005.11.30</version>
+			<version>2006.06.29</version>
 			<properties>
 				<war.bundle>true</war.bundle>
 				<atlassian.ship>source</atlassian.ship>
 				<atlassian.module.dir>atlassian-renderer</atlassian.module.dir>
-				<atlassian.cvs.tag>atlassian_renderer_2005.11.30</atlassian.cvs.tag>
+				<atlassian.cvs.tag>atlassian_renderer_2006_06_29</atlassian.cvs.tag>
+			</properties>
+		</dependency>
+		<dependency>
+			<id>bonnie</id>
+			<version>2006-10-31</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+				<atlassian.ship>source</atlassian.ship>
+				<atlassian.cvs.tag>bonnie_2006_10_31</atlassian.cvs.tag>
 			</properties>
 		</dependency>
 		<!-- Used by atlassian-profiling -->
@@ -166,7 +194,7 @@
 		</dependency>
 		<dependency>
 			<id>osuser</id>
-			<version>1.0-dev-patched-log4j-1.4jdk-11Nov05</version>
+			<version>1.0-dev-log4j-1.4jdk-7Dec05</version>
 			<properties>
 				<war.bundle>true</war.bundle>
 			</properties>
@@ -186,11 +214,11 @@
 			</properties>
 		</dependency>
 		<!-- When updating webwork, please ensure that the webwork jar referenced here is the one which has JIRA's tld. JIRA uses its own implementation of the
-     WebWork Text tag, and some app servers, e.g. WebSphere, always pick up the tld from the jar and hence use the wrong WebWork Text tag. Need ot replace the
+     WebWork Text tag, and some app servers, e.g. WebSphere, always pick up the tld from the jar and hence use the wrong WebWork Text tag. Need to replace the
      default WebWork tld inside the jar with JIRA's tld file for webwork.-->
 		<dependency>
 			<id>webwork</id>
-			<version>3Aug05-jiratld</version>
+			<version>16May06-jiratld</version>
 			<properties>
 				<war.bundle>true</war.bundle>
 			</properties>
@@ -233,7 +261,7 @@
 		</dependency>
 		<dependency>
 			<id>commons-lang</id>
-			<version>2.0</version>
+			<version>2.1</version>
 			<properties>
 				<war.bundle>true</war.bundle>
 			</properties>
@@ -260,8 +288,15 @@
          need to inject our com.atlassian.jira.issue.index.analyzer.ExceptionFilter into the stream (see the
          tokenStream() method of each class). JRA-7921 -->
 		<dependency>
-			<id>lucene</id>
-			<version>1.4.3</version>
+			<id>lucene+core</id>
+			<version>1.9.1</version>
+			<properties>
+				<war.bundle>true</war.bundle>
+			</properties>
+		</dependency>
+		<dependency>
+			<id>lucene+analyzers</id>
+			<version>1.9.1</version>
 			<properties>
 				<war.bundle>true</war.bundle>
 			</properties>
@@ -290,7 +325,7 @@
 		<!-- ajax dependency -->
 		<dependency>
 			<id>dwr</id>
-			<version>1.0-rc3-atlassian</version>
+			<version>1.1-rc1</version>
 			<properties>
 				<war.bundle>true</war.bundle>
 			</properties>
@@ -412,7 +447,7 @@
 		</dependency>
 		<dependency>
 			<id>ofbcore+entity</id>
-			<version>2.1.1-atlassian-25Nov05</version>
+			<version>2.1.1-atlassian-16Oct06</version>
 			<properties>
 				<war.bundle>true</war.bundle>
 			</properties>
@@ -492,7 +527,7 @@
 		</dependency>
 		<dependency>
 			<id>statcvs</id>
-			<version>20050524-patched</version>
+			<version>20060222-patched</version>
 			<properties>
 				<war.bundle>true</war.bundle>
 			</properties>
@@ -529,7 +564,7 @@
 		</dependency>
 		<dependency>
 			<id>hsqldb</id>
-			<version>1.7.1-patched</version>
+			<version>1.8.0.5</version>
 			<properties>
 				<standalone.jetty.jar>true</standalone.jetty.jar>
 				<standalone.resin.jar>true</standalone.resin.jar>
@@ -651,60 +686,60 @@
 		</dependency>
 		<dependency>
 			<id>commons-jelly</id>
-			<version>20030310.073407</version>
+			<version>1.0</version>
 			<properties>
 				<war.bundle>true</war.bundle>
 			</properties>
 		</dependency>
 		<dependency>
 			<id>commons-jelly+tags-junit</id>
-			<version>20030211.141731</version>
+			<version>1.0</version>
 		</dependency>
 		<dependency>
 			<id>commons-jelly+tags-util</id>
-			<version>20030211.141939</version>
+			<version>1.1.1</version>
 			<properties>
 				<war.bundle>true</war.bundle>
 			</properties>
 		</dependency>
 		<dependency>
 			<id>commons-jelly+tags-email</id>
-			<version>20030211.144034</version>
+			<version>1.0</version>
 			<properties>
 				<war.bundle>true</war.bundle>
 			</properties>
 		</dependency>
 		<dependency>
 			<id>commons-jelly+tags-log</id>
-			<version>20030211.142821</version>
+			<version>1.0</version>
 			<properties>
 				<war.bundle>true</war.bundle>
 			</properties>
 		</dependency>
 		<dependency>
 			<id>commons-jelly+tags-http</id>
-			<version>20030211.143043</version>
+			<version>1.0</version>
 			<properties>
 				<war.bundle>true</war.bundle>
 			</properties>
 		</dependency>
 		<dependency>
 			<id>commons-jelly+tags-soap</id>
-			<version>20030211.142401</version>
+			<version>1.0</version>
 			<properties>
 				<war.bundle>true</war.bundle>
 			</properties>
 		</dependency>
 		<dependency>
 			<id>commons-jelly+tags-sql</id>
-			<version>20030211.144816</version>
+			<version>1.0</version>
 			<properties>
 				<war.bundle>true</war.bundle>
 			</properties>
 		</dependency>
 		<dependency>
 			<id>commons-jexl</id>
-			<version>1.0-beta-2</version>
+			<version>1.0</version>
 			<properties>
 				<war.bundle>true</war.bundle>
 			</properties>
@@ -718,18 +753,18 @@
 		</dependency>
 		<dependency>
 			<id>atlassian-trackback</id>
-			<version>0.8.2</version>
+			<version>2006-11-24-1</version>
 			<properties>
 				<war.bundle>true</war.bundle>
 				<atlassian.ship>source</atlassian.ship>
 				<atlassian.module.dir>trackback</atlassian.module.dir>
-				<atlassian.cvs.tag>atlassian_trackback_0_8_2</atlassian.cvs.tag>
+				<atlassian.cvs.tag>atlassian_trackback_2006_11_24_1</atlassian.cvs.tag>
 			</properties>
 		</dependency>
-		<!-- doug lea's concurrency utils -->
+		<!-- jsr 166 backport -->
 		<dependency>
-			<id>concurrent</id>
-			<version>1.3.4-withdebug</version>
+			<id>backport-util-concurrent</id>
+			<version>2.2</version>
 			<properties>
 				<war.bundle>true</war.bundle>
 			</properties>
@@ -872,65 +907,6 @@
 				<war.bundle>true</war.bundle>
 			</properties>
 		</dependency>
-		<!-- Functional Test Dependencies -->
-		<dependency>
-			<id>httpunit</id>
-			<version>1.5.4-patched</version>
-			<jar>httpunit-1.5.4-patched.jar</jar>
-			<properties>
-				<func.test>true</func.test>
-			</properties>
-		</dependency>
-		<dependency>
-			<id>exml</id>
-			<version>7.1</version>
-			<properties>
-				<func.test>true</func.test>
-			</properties>
-		</dependency>
-		<dependency>
-			<id>jwebunit</id>
-			<version>1.2</version>
-			<properties>
-				<func.test>true</func.test>
-			</properties>
-		</dependency>
-		<dependency>
-			<id>httpunit</id>
-			<version>1.5.4-patched</version>
-			<properties>
-				<func.test>true</func.test>
-			</properties>
-		</dependency>
-		<dependency>
-			<id>junit</id>
-			<version>3.8.1</version>
-			<properties>
-				<func.test>true</func.test>
-			</properties>
-		</dependency>
-		<dependency>
-			<id>xmlunit</id>
-			<version>1.0</version>
-			<properties>
-				<func.test>true</func.test>
-			</properties>
-		</dependency>
-		<dependency>
-			<id>nekohtml</id>
-			<version>0.8.1</version>
-			<properties>
-				<func.test>true</func.test>
-			</properties>
-		</dependency>
-		<dependency>
-			<id>rhino</id>
-			<version>1.5R4-RC3</version>
-			<jar>js-1.5R4-RC3.jar</jar>
-			<properties>
-				<func.test>true</func.test>
-			</properties>
-		</dependency>
 		<!-- Wiki renderer dependencies -->
 		<dependency>
 			<id>radeox</id>
@@ -946,6 +922,7 @@
 				<war.bundle>true</war.bundle>
 			</properties>
 		</dependency>
+		<!-- End Wiki renderer dependencies -->
 	</dependencies>
 	<reports>
 		<report>maven-pmd-plugin</report>
