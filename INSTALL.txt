@@ -3,11 +3,8 @@ INSTALL
 ===========================
 The .jar file should be placed in /WEB-INF/lib of the expanded jira webapplication
 in addition to any other libraries required by the plugin. Required libraries are:
- * Spring 1.1.5+
-
-For the Portlet icons and thumbnails to work you should expand /portlet/** from the 
-.jar file to the expanded jira webapplication /portlet directory so the images
-can be accessed by the browser.
+ * Spring 1.1.5 or later +
+ * Libraries available with Jira 3.9.1
 
 You probably need to restart the webapp for the libraries to be available. You can check
 whether or not the plugins (and thus the jar) have been loaded from 

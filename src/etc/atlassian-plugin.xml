@@ -12,7 +12,7 @@
         <resource type="i18n" name="i18n" location="com.laughingpanda.jira.versionWorkloadChart" />
         <resource type="velocity" name="view" location="templates/versionWorkloadChart.vm" />
 		<label key="portlet.versionworkloadchart.label" />
-		<thumbnail>portlets/dashboard/thumbnails/laughingpanda/burndown.png</thumbnail>
+		<thumbnail>download/resources/com.laughingpanda.jira:versionWorkloadChart/burndown.png</thumbnail>
 		<permission>browse</permission>
 		<properties>
 			<property>
@@ -58,6 +58,8 @@
                 <values class="com.laughingpanda.jira.BooleanValuesGenerator"/>
 			</property>			
 		</properties>
+		<resource type="download" name="burndown.png" location="templates/extras/burndown.png" />
+		<resource type="download" name="corner_burndown.png" location="templates/extras/corner_burndown.png" />
 	</portlet>
 	<component key="versionWorkloadHistoryManager" name="Version Workload History Manager" class="com.laughingpanda.jira.VersionWorkloadHistoryManagerImpl">
 		<interface>com.laughingpanda.jira.VersionWorkloadHistoryManager</interface>
