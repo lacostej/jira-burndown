@@ -3,7 +3,7 @@
 	<groupId>agile-plugins</groupId>
 	<artifactId>agile-plugins</artifactId>
 	<name>Agile Plugins for Jira</name>
-	<currentVersion>0.2-jira-3.9.1</currentVersion>
+	<currentVersion>0.3-SNAPSHOT-jira-3.9.1</currentVersion>
 	<dependencies>
 		<dependency>
 			<groupId>springframework</groupId>
