@@ -23,7 +23,7 @@ class TestDbUtil {
     }
 
     private static void init() {
-        connection = new HSQLConnectionFactory().create();
+        connection = new PostgreConnectionFactory().create();
     }
 
     private static void executeClause(String clause) {
@@ -56,6 +56,13 @@ class TestDbUtil {
             super("com.microsoft.sqlserver.jdbc.SQLServerDriver", "jdbc:sqlserver://localhost:4533", "test", "test");
         }
     }
+    
+    private static class PostgreConnectionFactory extends BasicConnectionFactory {
+        public PostgreConnectionFactory() {
+            super("org.postgresql.Driver", "jdbc:postgresql://localhost:5432", "postgres", "postgres");
+        }
+    }
+
 
     private static class BasicConnectionFactory {
 
