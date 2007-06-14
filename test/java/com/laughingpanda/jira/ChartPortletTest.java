@@ -5,6 +5,8 @@
  */
 package com.laughingpanda.jira;
 
+import java.io.File;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -38,7 +40,6 @@ public class ChartPortletTest extends TestCase {
     private MockProviderAccessor accessor;
     private MockJiraAuthenticationContext authenticationContext;
     private User authenticatedUser;
-
     static abstract class MockVersion implements Version {
 
         public GenericValue project;
@@ -105,7 +106,8 @@ public class ChartPortletTest extends TestCase {
         }
 
         public List<VersionWorkloadHistoryPoint> getWorkloadStartingFromMaxDateBeforeGivenDate(Long versionId, Long type, Date startDate) {
-            return new LinkedList<VersionWorkloadHistoryPoint>();
+            return Arrays.asList(
+        );
         }
     }
 
@@ -133,14 +135,18 @@ public class ChartPortletTest extends TestCase {
 
     public void setUp() throws Exception {
         NullValues.useDefaultPrimitiveValues();
-
         authenticationContext = MockFactory.makeMock(MockJiraAuthenticationContext.class);
         accessor = MockFactory.makeMock(MockProviderAccessor.class);
         authenticatedUser = new User("name", accessor);
         authenticationContext.setUser(authenticatedUser);
         config = MockFactory.makeMock(MockConfiguration.class);
         MockVersionManager mock = MockFactory.makeMock(MockVersionManager.class);
-        portlet = new ChartPortlet(authenticationContext, mock, mock, accessor, NullValues.makeMock(ApplicationProperties.class));
+        portlet = new ChartPortlet(authenticationContext, mock, mock, accessor, NullValues.makeMock(ApplicationProperties.class)) {
+            @Override
+            protected boolean createNewImage(File imageFile) {
+                return true;
+            }
+        };
 
         config.properties.put("chart.width", "640");
         config.properties.put("chart.height", "400");
@@ -153,7 +159,7 @@ public class ChartPortletTest extends TestCase {
         MockVersion version = MockFactory.makeMock(MockVersion.class);
         version.project = project;
 
-        mock.versions.put(1l, version);
+        mock.versions.put(1L, version);
     }
 
     public void testNullConfiguration() {
@@ -166,11 +172,16 @@ public class ChartPortletTest extends TestCase {
 
     public void testBasic() {
         Map params = portlet.getVelocityParams(config);
-        assertEquals("public1--1-2005-01-01-640x400.png", params.get("chartFilename"));
-        assertEquals("public1--1-2005-01-01-640x400.png", params.get("imageMapName"));
+        assertEquals("public1--1-2005-01-01-640x400", params.get("chartFilename"));
+        assertEquals("public1--1-2005-01-01-640x400", params.get("imageMapName"));
         assertEquals("1", params.get("versionId"));
         assertFalse(params.containsKey("errorMessage"));
         assertEquals(true, params.get("loggedin"));
+        assertContains((String) params.get("imageMap"), "title");
+    }
+    
+    public static void assertContains(String where, String what) {
+        assertTrue(String.format("'%s' didn't contain '%s'.", where, what), where.contains(what));
     }
 
     public void testUserHasNoRights() {
@@ -181,11 +192,10 @@ public class ChartPortletTest extends TestCase {
     }
 
     public void testNoStartDateConfigured() {
-
         config.properties.remove("startDate");
         Map params = portlet.getVelocityParams(config);
-        assertEquals("public1--1-1970-01-01-640x400.png", params.get("chartFilename"));
-        assertEquals("public1--1-1970-01-01-640x400.png", params.get("imageMapName"));
+        assertEquals("public1--1-1970-01-01-640x400", params.get("chartFilename"));
+        assertEquals("public1--1-1970-01-01-640x400", params.get("imageMapName"));
         assertFalse(params.containsKey("errorMessage"));
     }
 

@@ -6,12 +6,12 @@
 package com.laughingpanda.jira;
 
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
-import java.util.Date;
 import java.util.Map;
 
 import org.apache.log4j.Category;
@@ -29,6 +29,7 @@ import com.atlassian.jira.project.version.VersionManager;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.security.PermissionManager;
 import com.atlassian.jira.security.Permissions;
+import com.atlassian.jira.util.IOUtil;
 
 /**
  * 
@@ -36,6 +37,7 @@ import com.atlassian.jira.security.Permissions;
  * @author Markus Hjort
  */
 public class ChartPortlet extends PortletImpl {
+    File tempDirectory = new File(System.getProperty("java.io.tmpdir"));
 
     private static final int IMAGE_CREATION_INTERVAL = 60 * 1000;
     private final static Category log = Category.getInstance(ChartPortlet.class);
@@ -46,58 +48,36 @@ public class ChartPortlet extends PortletImpl {
         super(authenticationContext, permissionManager, properties);
         this.versionManager = versionManager;
         this.chartService = new VersionHistoryChartFactory(manager);
+        createTempDir();
     }
 
     public Map getVelocityParams(PortletConfiguration config) {
         if (config == null) throw new IllegalArgumentException("PortletConfiguration cannot be null.");
         Map model = super.getVelocityParams(config);
+        BurndownPortletConfiguration chartConfig = new BurndownPortletConfiguration(config);
 
-        int width = 500;
-        int height = 300;
-        Long versionId = null;
-        Long typeId = -1L;
-        Date startDate = null;
-        try {
-            width = config.getLongProperty("chart.width").intValue();
-            height = config.getLongProperty("chart.height").intValue();
-            versionId = config.getLongProperty("versionId");
-            String type = config.getProperty("typeId");
-            if (type != null) {
-                try {
-                    typeId = Long.parseLong(type);
-                } catch (Exception e) {}
-            }
-            String date = config.getProperty("startDate");
-            if (date != null) startDate = getIsoDateFormatter().parse(date);
-            else startDate = new Date(0);
-        } catch (Exception e) {
-            throw new RuntimeException("Error in portlet configuration.", e);
-        }
-        if (versionId == null) return error(model, "Version (" + versionId + ") is not available.");
-        if (typeId == null) typeId = -1L;
-        if (versionId.longValue() < 0l) return error(model, "Please, choose a version. Full Projects are not supported");
+        if (chartConfig.versionId == null) return error(model, "Version (" + chartConfig.versionId + ") is not available.");
+        if (chartConfig.typeId == null) chartConfig.typeId = -1L;
+        if (chartConfig.versionId.longValue() < 0l) return error(model, "Please, choose a version. Full Projects are not supported");
 
         Collection browsableProjects = permissionManager.getProjects(Permissions.BROWSE, authenticationContext.getUser());
 
-        Version version = versionManager.getVersion(versionId);
-        if (version == null) return error(model, "Version (" + versionId + ") is not available.");
+        Version version = versionManager.getVersion(chartConfig.versionId);
+        if (version == null) return error(model, "Version (" + chartConfig.versionId + ") is not available.");
         if (!browsableProjects.contains(version.getProject())) return error(model, "You don't have correct privileges to view this data.");
 
         try {
             ChartRenderingInfo info = new ChartRenderingInfo(new StandardEntityCollection());
-            createTempDir();
-            File imageFile = new File(new File(System.getProperty("java.io.tmpdir")), createFileName(width, height, versionId, typeId, startDate));
-            if (createNewImage(imageFile)) {
-                JFreeChart chart = chartService.makeChart(version, typeId, startDate);
-                saveImage(imageFile, width, height, chart, info);
+            String chartName = createChartName(chartConfig);
+            if (createNewImage(new File(tempDirectory, chartName + ".png"))) {
+                JFreeChart chart = chartService.makeChart(version, chartConfig.typeId, chartConfig.startDate);
+                saveImageAndTooltipMap(chartName, chartConfig.width, chartConfig.height, chart, info);
             }
-
-            StringWriter imageMap = new StringWriter();
-            ChartUtilities.writeImageMap(new PrintWriter(imageMap), imageFile.getName(), info, true);
-            model.put("chartFilename", imageFile.getName());
-            model.put("imageMapName", imageFile.getName());
-            model.put("imageMap", imageMap.toString());
-            model.put("versionId", versionId.toString());
+            model.put("chartFilename", chartName);
+            model.put("imageMapName", chartName);
+            model.put("imageMap", readImageMap(chartName));
+            model.put("versionId", "" + version.getId());
+            model.put("remote", chartConfig.remote);
         } catch (Exception e) {
             log.log(Priority.ERROR, e);
             throw new RuntimeException(e);
@@ -105,32 +85,48 @@ public class ChartPortlet extends PortletImpl {
         return model;
     }
 
+    private String readImageMap(String chartName) {
+        FileReader reader = null;
+        try {
+            reader = new FileReader(new File(tempDirectory, chartName + ".txt"));
+            return IOUtil.toString(reader);
+        } catch (Exception e) {
+            return null;
+        } finally {
+            IOUtil.shutdownReader(reader);
+        }
+    }
+
     private static Map error(Map model, String string) {
         model.put("errorMessage", string);
         return model;
     }
 
-    private SimpleDateFormat getIsoDateFormatter() {
+    static SimpleDateFormat getIsoDateFormatter() {
         return new SimpleDateFormat("yyyy-MM-dd");
     }
 
-    private String createFileName(int width, int height, Long versionId, Long type, Date startDate) {
-        return "public" + versionId + "-" + type + "-" + getIsoDateFormatter().format(startDate) + "-" + width + "x" + height + ".png";
+    private String createChartName(BurndownPortletConfiguration chartConfig) {
+        return "public" + chartConfig.versionId + "-" + chartConfig.typeId + "-" + getIsoDateFormatter().format(chartConfig.startDate) + "-" + chartConfig.width + "x" + chartConfig.height;
     }
 
-    private boolean createNewImage(File imageFile) {
+    /**
+     * This is exposed for testing purposes.
+     */
+    protected boolean createNewImage(File imageFile) {
         return !imageFile.exists() || imageFile.lastModified() < (System.currentTimeMillis() - IMAGE_CREATION_INTERVAL);
     }
 
-    private void saveImage(File imageFile, int width, int height, JFreeChart chart, ChartRenderingInfo info) throws IOException {
-        ChartUtilities.saveChartAsPNG(imageFile, chart, width, height, info);
+    private void saveImageAndTooltipMap(String name, int width, int height, JFreeChart chart, ChartRenderingInfo info) throws IOException {
+        ChartUtilities.saveChartAsPNG(new File(tempDirectory, name + ".png"), chart, width, height, info);
+        PrintWriter imageMap = new PrintWriter(new FileWriter(new File(tempDirectory, name + ".txt")));
+        ChartUtilities.writeImageMap(imageMap, name, info, false);
+        IOUtil.shutdownWriter(imageMap);
+
     }
 
     private void createTempDir() {
-        String tempDirName = System.getProperty("java.io.tmpdir");
-        if (tempDirName == null) throw new RuntimeException("Temporary directory system property (java.io.tmpdir) is null");
-        File tempDir = new File(tempDirName);
-        if (!tempDir.exists()) tempDir.mkdirs();
+        if (!tempDirectory.exists()) tempDirectory.mkdirs();
     }
 
 }

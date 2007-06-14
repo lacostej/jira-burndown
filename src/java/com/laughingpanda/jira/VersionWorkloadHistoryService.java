@@ -37,18 +37,8 @@ public class VersionWorkloadHistoryService extends AbstractService {
     private final class StoreHistoryClosure implements Closure {
 
         private final IssueTransformer issueTransformer;
-        private IssueFactory issueFactory = new DefaultIssueFactory(
-                ComponentManager.getInstance().getIssueManager(), 
-                ComponentManager.getInstance().getProjectManager(),
-                ComponentManager.getInstance().getVersionManager(), 
-                ManagerFactory.getIssueSecurityLevelManager(), 
-                ComponentManager.getInstance().getConstantsManager(), 
-                ComponentManager.getInstance().getSubTaskManager(),
-                ComponentManager.getInstance().getFieldManager(),
-                ComponentManager.getInstance().getAttachmentManager(),
-                ComponentManager.getInstance().getProjectFactory()
-        );
-                
+        private IssueFactory issueFactory = new DefaultIssueFactory(ComponentManager.getInstance().getIssueManager(), ComponentManager.getInstance().getProjectManager(), ComponentManager.getInstance().getVersionManager(), ManagerFactory.getIssueSecurityLevelManager(), ComponentManager.getInstance().getConstantsManager(), ComponentManager.getInstance().getSubTaskManager(), ComponentManager.getInstance().getFieldManager(), ComponentManager.getInstance().getAttachmentManager(), ComponentManager.getInstance().getProjectFactory());
+
         public StoreHistoryClosure(IssueTransformer issueTransformer) {
             this.issueTransformer = issueTransformer;
         }
@@ -73,7 +63,7 @@ public class VersionWorkloadHistoryService extends AbstractService {
             for (MutableIssue issue : issues) {
                 if (issue == null) continue;
                 VersionWorkloadHistoryPoint point = (VersionWorkloadHistoryPoint) issueTransformer.transform(issue);
-                if (point == null) continue;                
+                if (point == null) continue;
                 total.add(point);
             }
             return total;

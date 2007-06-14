@@ -31,7 +31,8 @@ import com.atlassian.jira.project.version.Version;
 class VersionHistoryChartFactory {
     
     private static final double SECONDS_PER_HOUR = 3600d;
-    private static final DateFormat LONG_TIP = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.LONG, new Locale("fi", "FI"));
+
+    private static final DateFormat LONG_TIP = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, new Locale("fi", "FI"));
     
     private final VersionWorkloadHistoryManager historyManager;
 
@@ -79,7 +80,7 @@ class VersionHistoryChartFactory {
 
     private StandardXYItemRenderer createRenderer() {
         StandardXYToolTipGenerator ttg = new StandardXYToolTipGenerator(
-                StandardXYToolTipGenerator.DEFAULT_TOOL_TIP_FORMAT,
+                "{0}: {2}",
                 LONG_TIP, NumberFormat.getInstance());
                         
         StandardXYItemRenderer renderer = new StandardXYItemRenderer(
@@ -100,8 +101,8 @@ class VersionHistoryChartFactory {
             historyManager.getWorkloadStartingFromMaxDateBeforeGivenDate(version.getId(), type, startDate); 
         setFirstWorkLoadPointToStartDate(startDate, workloadPoints);
         XYSeriesCollection xyDataset = new XYSeriesCollection();
-        xyDataset.addSeries(makeSeries(workloadPoints, new RemainingTime()));
-        xyDataset.addSeries(makeSeries(workloadPoints, new TotalTime()));        
+        xyDataset.addSeries(makeSeries("Remaining " + resolveValueAxisName(type), workloadPoints, new RemainingTime()));
+        xyDataset.addSeries(makeSeries("Total " + resolveValueAxisName(type), workloadPoints, new TotalTime()));        
         addReleaseMarker(version, xyDataset);
         return xyDataset;
     }
@@ -121,8 +122,8 @@ class VersionHistoryChartFactory {
         }
     }
     
-    private XYSeries makeSeries(List<VersionWorkloadHistoryPoint> workload, Evaluator evaluator) {
-        XYSeries series = new XYSeries("Remaining Time");
+    private XYSeries makeSeries(String title, List<VersionWorkloadHistoryPoint> workload, Evaluator evaluator) {
+        XYSeries series = new XYSeries(title);
         for (VersionWorkloadHistoryPoint point : workload) {
             if (point == null || point.measureTime == null) continue;
             series.add(point.measureTime.getTime(), evaluator.valueOf(point));

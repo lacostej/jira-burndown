@@ -1,11 +1,11 @@
-#if ($loggedin)
-	#if ($errorMessage)
-		$errorMessage
+#if (${loggedin})
+	#if (${errorMessage})
+		${errorMessage}
 	#else
-	    #if ($imageMap)
-	        $imageMap
+	    #if (${imageMap})
+	        ${imageMap}
 	    #end
-	    <a href="http://$req.serverName:$req.serverPort$req.contextPath/secure/IssueNavigator.jspa?reset=true&mode=hide&sorter/order=DESC&sorter/field=priority&resolution=-1&fixfor=$versionId"
-		><img border="0" src="http://$req.serverName:$req.serverPort$req.contextPath/charts?filename=$chartFilename" border="0" #if ($imageMap) usemap="\#$imageMapName" #end></a>
+	    <a href="#if ($remote)http://${req.serverName}:${req.serverPort}#end${req.contextPath}/secure/IssueNavigator.jspa?reset=true&mode=hide&sorter/order=DESC&sorter/field=priority&resolution=-1&fixfor=${versionId}"
+		><img border="0" src="#if ($remote)http://${req.serverName}:${req.serverPort}#end${req.contextPath}/charts?filename=${chartFilename}.png" border="0" #if (${imageMap}) usemap="\#${imageMapName}" #end></a>
 	#end
 #end

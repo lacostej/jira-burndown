@@ -50,6 +50,13 @@
                 <type>select</type>
                 <values class="com.laughingpanda.jira.AllVersionValuesGenerator"/>
 			</property>			
+			<property>
+				<key>remote</key>
+                <name>portlet.versionworkloadchart.field.remote.name</name>
+                <description>portlet.versionworkloadchart.field.remote.description</description>
+                <type>select</type>
+                <values class="com.laughingpanda.jira.BooleanValuesGenerator"/>
+			</property>			
 		</properties>
 	</portlet>
 	<component key="versionWorkloadHistoryManager" name="Version Workload History Manager" class="com.laughingpanda.jira.VersionWorkloadHistoryManagerImpl">

@@ -5,10 +5,6 @@
  */
 package com.laughingpanda.jira;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -18,7 +14,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.ResourceBundle;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -30,13 +25,7 @@ import org.apache.commons.collections.Predicate;
 import org.apache.commons.collections.PredicateUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.log4j.Category;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.support.JdbcUtils;
-import org.springframework.jdbc.support.MetaDataAccessException;
-
-import com.laughingpanda.jira.VersionWorkloadHistoryManager;
-import com.laughingpanda.jira.VersionWorkloadHistoryPoint;
 
 /**
  * @author Jukka Lindstrom
@@ -44,10 +33,8 @@ import com.laughingpanda.jira.VersionWorkloadHistoryPoint;
  */
 public class VersionWorkloadHistoryManagerImpl implements VersionWorkloadHistoryManager {
 
-    private String databaseName = "DEFAULT";
-    private ResourceBundle sqlBundle;
-    private JdbcTemplate template;
     private final Category log = Category.getInstance(VersionWorkloadHistoryManagerImpl.class);
+    private QueryHelper template;
 
     Map<Long, Pair> startPointsForVersions = new HashMap<Long, Pair>();
     Map<Long, Pair> lastPointsForVersions = new HashMap<Long, Pair>();
@@ -67,48 +54,7 @@ public class VersionWorkloadHistoryManagerImpl implements VersionWorkloadHistory
     }
 
     public VersionWorkloadHistoryManagerImpl(DataSource datasource) {
-        template = new JdbcTemplate(datasource);
-        resolveDatabaseName(datasource);
-        resolveDatabaseQueries();
-        createTableIfNotExists();
-    }
-
-    private void resolveDatabaseQueries() {
-        sqlBundle = ResourceBundle.getBundle(databaseName + ".database_queries");
-    }
-
-    private void resolveDatabaseName(DataSource datasource) {
-        try {
-            databaseName = (String) JdbcUtils.extractDatabaseMetaData(datasource, "getDatabaseProductName");
-            databaseName = databaseName.replaceAll(" ", "");
-            log.info("Resolved database name '" + databaseName + "'.");
-        } catch (MetaDataAccessException e) {
-            log.warn("Could not access database product name; using default fetching database clauses.", e);
-        }
-    }
-
-    private void createTableIfNotExists() {
-        if (sqlQueryPossible(getClauseByName("DATABASE_OK"))) return;
-        InputStream resourceAsStream = ClassLoader.getSystemResourceAsStream(databaseName + "/create.sql");
-        if (resourceAsStream == null) throw new IllegalStateException("Cannot find resource." + databaseName + "/create.sql");
-        BufferedReader reader = new BufferedReader(new InputStreamReader(resourceAsStream));
-        try {
-            while (reader.ready()) {
-                template.execute(reader.readLine());
-            }
-        } catch (IOException e) {
-            throw new UnsupportedOperationException("Catch not implemented.");
-
-        }
-    }
-
-    private boolean sqlQueryPossible(String testQuery) {
-        try {
-            template.execute(testQuery);
-        } catch (Exception e) {
-            return false;
-        }
-        return true;
+        template = new QueryHelper(datasource);
     }
 
     static final RowMapper mapper = new RowMapper() {
@@ -127,23 +73,24 @@ public class VersionWorkloadHistoryManagerImpl implements VersionWorkloadHistory
 
     public synchronized void storeWorkload(VersionWorkloadHistoryPoint point) {
         log.debug("Storing workload point.");
+        template.update("BEGIN_TRANSACTION");
         if (!lastPointsForVersions.containsKey(point.versionId)) {
             lastPointsForVersions.put(point.versionId, new Pair<VersionWorkloadHistoryPoint>(point, point));
         }
 
         Pair<VersionWorkloadHistoryPoint> range = lastPointsForVersions.get(point.versionId);
         if (!range.isStartOnly() && measurementsEqual(point, range.end)) {
-            template.update(getClauseByName("UPDATE"), new Object[] { point.measureTime, point.versionId, range.end.measureTime });
+            template.update("UPDATE", point.measureTime, point.versionId, range.end.measureTime);
         } else {
             insert(point);
             if (!range.isStartOnly()) range.start = point;
         }
         range.end = point;
-        template.update("COMMIT");
+        template.update("COMMIT_TRANSACTION");
     }
 
     private void insert(VersionWorkloadHistoryPoint point) {
-        template.update(getClauseByName("INSERT"), new Object[] { point.versionId, point.measureTime, point.remainingEffort, point.remainingIssues, point.totalEffort, point.totalIssues, point.type });
+        template.update("INSERT", point.versionId, point.measureTime, point.remainingEffort, point.remainingIssues, point.totalEffort, point.totalIssues, point.type);
     }
 
     private boolean measurementsEqual(VersionWorkloadHistoryPoint point, VersionWorkloadHistoryPoint last) {
@@ -152,7 +99,7 @@ public class VersionWorkloadHistoryManagerImpl implements VersionWorkloadHistory
 
     public List<VersionWorkloadHistoryPoint> getWorkloadStartingFromMaxDateBeforeGivenDate(Long versionId, Long type, final Date startDate) {
         log.debug("Retrieving workload for version '" + versionId + "' with startDate '" + startDate + "'.");
-        List<VersionWorkloadHistoryPoint> all = template.query(getClauseByName("SELECT_VERSION_DATA"), new Object[] { versionId, type }, mapper);
+        List<VersionWorkloadHistoryPoint> all = template.query("SELECT_VERSION_DATA", mapper, versionId, type);
 
         Predicate predicate = new Predicate() {
             public boolean evaluate(Object arg0) {
@@ -170,11 +117,8 @@ public class VersionWorkloadHistoryManagerImpl implements VersionWorkloadHistory
         return Collections.unmodifiableList(points);
     }
 
-    public String getClauseByName(String name) {
-        return sqlBundle.getString(name);
-    }
-
 }
+
 
 class Pair<T> {
 

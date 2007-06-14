@@ -23,7 +23,7 @@ class TestDbUtil {
     }
 
     private static void init() {
-        connection = new MysqlConnectionFactory().create();
+        connection = new HSQLConnectionFactory().create();
     }
 
     private static void executeClause(String clause) {
@@ -53,7 +53,7 @@ class TestDbUtil {
 
     private static class SQLServerConnectionFactory extends BasicConnectionFactory {
         public SQLServerConnectionFactory() {
-            super("com.microsoft.jdbc.sqlserver.SQLServerDriver", "jdbc:microsoft:sqlserver://localhost:1433", "jirauser", "jirauser");
+            super("com.microsoft.sqlserver.jdbc.SQLServerDriver", "jdbc:sqlserver://localhost:4533", "test", "test");
         }
     }
 
