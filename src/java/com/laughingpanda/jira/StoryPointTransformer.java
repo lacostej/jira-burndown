@@ -1,7 +1,4 @@
-
 package com.laughingpanda.jira;
-
-import org.apache.commons.collections.Transformer;
 
 import com.atlassian.jira.issue.MutableIssue;
 import com.atlassian.jira.issue.fields.CustomField;
@@ -22,7 +19,7 @@ final class StoryPointTransformer implements IssueTransformer {
         VersionWorkloadHistoryPoint point = new VersionWorkloadHistoryPoint();
         Double storyPointValue = (Double) issue.getCustomFieldValue(field);
         if (storyPointValue == null) return null;
-        
+
         point.type = getTypeId();
         point.totalIssues = 1;
         point.totalEffort = storyPointValue.longValue();

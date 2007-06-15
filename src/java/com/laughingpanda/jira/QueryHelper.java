@@ -16,7 +16,9 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.jdbc.support.MetaDataAccessException;
 
-public class QueryHelper {
+import com.atlassian.jira.util.IOUtil;
+
+class QueryHelper {
 
     private final Category log = Category.getInstance(QueryHelper.class);
     private String databaseName = "DEFAULT";
@@ -26,18 +28,18 @@ public class QueryHelper {
     public QueryHelper(DataSource datasource) {
         template = new JdbcTemplate(datasource);
         resolveDatabaseName(datasource);
-        resolveDatabaseQueries();
-        createTableIfNotExists();
+        resolveDatabaseClauseBundle();
+        runCreateScriptIfTablesDoNotExist();
     }
 
-    public List query(String string, RowMapper mapper, Object... params) {
-        String clause = getClauseByName(string);
+    public List query(String queryName, RowMapper mapper, Object... params) {
+        String clause = getClauseByName(queryName);
         if (clause == null || clause.length() == 0) return Collections.emptyList();
         return template.query(clause, params, mapper);
     }
 
-    public void update(String string, Object... params) {
-        String clause = getClauseByName(string);
+    public void update(String updateName, Object... params) {
+        String clause = getClauseByName(updateName);
         if (clause == null || clause.length() == 0) return;
         if (params.length == 0) {
             template.execute(clause);
@@ -46,7 +48,7 @@ public class QueryHelper {
         template.update(clause, params);
     }
 
-    private void resolveDatabaseQueries() {
+    private void resolveDatabaseClauseBundle() {
         sqlBundle = ResourceBundle.getBundle(databaseName + ".database_queries");
     }
 
@@ -60,8 +62,8 @@ public class QueryHelper {
         }
     }
 
-    private void createTableIfNotExists() {
-        if (sqlQueryPossible(getClauseByName("DATABASE_OK"))) return;
+    private void runCreateScriptIfTablesDoNotExist() {
+        if (isSqlQueryPossible(getClauseByName("DATABASE_OK"))) return;
         InputStream resourceAsStream = getClass().getClassLoader().getResourceAsStream(databaseName + "/create.sql");
         if (resourceAsStream == null) throw new IllegalStateException("Cannot find resource. " + databaseName + "/create.sql");
         BufferedReader reader = new BufferedReader(new InputStreamReader(resourceAsStream));
@@ -70,11 +72,13 @@ public class QueryHelper {
                 template.execute(reader.readLine());
             }
         } catch (IOException e) {
-            throw new UnsupportedOperationException("Catch not implemented.");
+            throw new RuntimeException(e);
+        } finally {
+            IOUtil.shutdownReader(reader);
         }
     }
 
-    private boolean sqlQueryPossible(String testQuery) {
+    private boolean isSqlQueryPossible(String testQuery) {
         try {
             template.execute(testQuery);
         } catch (Exception e) {
@@ -83,8 +87,8 @@ public class QueryHelper {
         return true;
     }
 
-    private String getClauseByName(String name) {
-        return sqlBundle.getString(name);
+    private String getClauseByName(String clauseName) {
+        return sqlBundle.getString(clauseName);
     }
 
 }

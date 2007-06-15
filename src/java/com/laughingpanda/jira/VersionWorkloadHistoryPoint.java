@@ -9,6 +9,8 @@ import java.util.Date;
 
 public class VersionWorkloadHistoryPoint implements Comparable<VersionWorkloadHistoryPoint> {
 
+    static final double SECONDS_PER_HOUR = 3600d;
+
     public Long versionId;
     public Date measureTime = new Date();
     public long remainingEffort = 0L;
@@ -33,6 +35,16 @@ public class VersionWorkloadHistoryPoint implements Comparable<VersionWorkloadHi
         this.totalIssues += point.totalIssues;
         if (this.type == null) type = point.type;
         if (this.type != point.type) throw new IllegalArgumentException("Cannot add together issues of different types.");
+    }
+
+    Double getCorrectedTotalEffort() {
+        if (this.type == null || this.type == -1L) return this.totalEffort / SECONDS_PER_HOUR;
+        return (double) this.totalEffort;
+    }
+
+    Double getCorrectedRemainingEffort() {
+        if (this.type == null || this.type == -1L) return this.remainingEffort / SECONDS_PER_HOUR;
+        return (double) this.remainingEffort;
     }
 
 }

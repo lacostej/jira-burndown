@@ -3,7 +3,7 @@
 	<!-- a short block describing the plugin itself -->
 	<plugin-info>
 		<description>LaughingPanda</description>
-		<version>0.2-SNAPSHOT-2</version>
+		<version>0.3-SNAPSHOT</version>
 		<application-version min="3.7" max="3.7"/>
 		<vendor name="Laughing Panda" url="http://www.laughingpanda.org"/>
 	</plugin-info>
@@ -29,6 +29,13 @@
 				<type>long</type>
 				<default>300</default>
 			</property>
+			<property>
+				<key>chart.includeLegend</key>
+				<name>portlet.versionworkloadchart.field.legend.name</name>
+				<description>portlet.versionworkloadchart.field.legend.description</description>
+                <type>select</type>
+                <values class="com.laughingpanda.jira.BooleanValuesGenerator"/>
+			</property>			
 			<property>
 				<key>startDate</key>
 				<name>portlet.versionworkloadchart.field.startdate.name</name>

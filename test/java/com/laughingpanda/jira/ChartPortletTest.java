@@ -172,8 +172,8 @@ public class ChartPortletTest extends TestCase {
 
     public void testBasic() {
         Map params = portlet.getVelocityParams(config);
-        assertEquals("public1--1-2005-01-01-640x400", params.get("chartFilename"));
-        assertEquals("public1--1-2005-01-01-640x400", params.get("imageMapName"));
+        assertEquals("public1--1-true-false-false-2005-01-01-640x400", params.get("chartFilename"));
+        assertEquals("public1--1-true-false-false-2005-01-01-640x400", params.get("imageMapName"));
         assertEquals("1", params.get("versionId"));
         assertFalse(params.containsKey("errorMessage"));
         assertEquals(true, params.get("loggedin"));
@@ -194,8 +194,8 @@ public class ChartPortletTest extends TestCase {
     public void testNoStartDateConfigured() {
         config.properties.remove("startDate");
         Map params = portlet.getVelocityParams(config);
-        assertEquals("public1--1-1970-01-01-640x400", params.get("chartFilename"));
-        assertEquals("public1--1-1970-01-01-640x400", params.get("imageMapName"));
+        assertEquals("public1--1-true-false-false-1970-01-01-640x400", params.get("chartFilename"));
+        assertEquals("public1--1-true-false-false-1970-01-01-640x400", params.get("imageMapName"));
         assertFalse(params.containsKey("errorMessage"));
     }
 

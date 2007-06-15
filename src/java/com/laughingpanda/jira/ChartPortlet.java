@@ -56,21 +56,20 @@ public class ChartPortlet extends PortletImpl {
         Map model = super.getVelocityParams(config);
         BurndownPortletConfiguration chartConfig = new BurndownPortletConfiguration(config);
 
-        if (chartConfig.versionId == null) return error(model, "Version (" + chartConfig.versionId + ") is not available.");
-        if (chartConfig.typeId == null) chartConfig.typeId = -1L;
-        if (chartConfig.versionId.longValue() < 0l) return error(model, "Please, choose a version. Full Projects are not supported");
+        if (chartConfig.getVersionId() == null) return error(model, "Version (" + chartConfig.getVersionId() + ") is not available.");
+        if (chartConfig.getVersionId().longValue() < 0L) return error(model, "Please, choose a version. Full Projects are not supported");
 
         Collection browsableProjects = permissionManager.getProjects(Permissions.BROWSE, authenticationContext.getUser());
 
-        Version version = versionManager.getVersion(chartConfig.versionId);
-        if (version == null) return error(model, "Version (" + chartConfig.versionId + ") is not available.");
+        Version version = versionManager.getVersion(chartConfig.getVersionId());
+        if (version == null) return error(model, "Version (" + chartConfig.getVersionId() + ") is not available.");
         if (!browsableProjects.contains(version.getProject())) return error(model, "You don't have correct privileges to view this data.");
 
         try {
             ChartRenderingInfo info = new ChartRenderingInfo(new StandardEntityCollection());
-            String chartName = createChartName(chartConfig);
+            String chartName = chartConfig.createChartName();
             if (createNewImage(new File(tempDirectory, chartName + ".png"))) {
-                JFreeChart chart = chartService.makeChart(version, chartConfig.typeId, chartConfig.startDate);
+                JFreeChart chart = chartService.makeChart(version, chartConfig);
                 saveImageAndTooltipMap(chartName, chartConfig.width, chartConfig.height, chart, info);
             }
             model.put("chartFilename", chartName);
@@ -100,14 +99,6 @@ public class ChartPortlet extends PortletImpl {
     private static Map error(Map model, String string) {
         model.put("errorMessage", string);
         return model;
-    }
-
-    static SimpleDateFormat getIsoDateFormatter() {
-        return new SimpleDateFormat("yyyy-MM-dd");
-    }
-
-    private String createChartName(BurndownPortletConfiguration chartConfig) {
-        return "public" + chartConfig.versionId + "-" + chartConfig.typeId + "-" + getIsoDateFormatter().format(chartConfig.startDate) + "-" + chartConfig.width + "x" + chartConfig.height;
     }
 
     /**
