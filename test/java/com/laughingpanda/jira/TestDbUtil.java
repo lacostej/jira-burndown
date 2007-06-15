@@ -23,7 +23,7 @@ class TestDbUtil {
     }
 
     private static void init() {
-        connection = new PostgreConnectionFactory().create();
+        connection = new HSQLConnectionFactory().create();
     }
 
     private static void executeClause(String clause) {
