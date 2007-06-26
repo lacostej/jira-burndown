@@ -1,1 +1,0 @@
-create table version_workload_history (versionID decimal(18,0), remainingTime decimal(18,0), totalTime decimal (18,0), remainingIssues decimal(18,0), totalIssues decimal(18,0), time timestamp);
