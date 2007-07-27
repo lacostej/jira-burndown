@@ -2,9 +2,16 @@
 INSTALL
 ===========================
 The .jar file should be placed in /WEB-INF/lib of the expanded jira webapplication
-in addition to any other libraries required by the plugin. Required libraries are:
- * Spring 1.1.5 or later +
- * Libraries available with Jira 3.9.1
+in addition to Spring Framework which is required by the plugin. 
+ 
+You can get Spring 2.0.6 from here:
+
+ftp://ibiblio.org/pub/packages/maven2/org/springframework/spring/2.0.6/spring-2.0.6.jar 
+
+You should place the downloaded jar alongside with the agile-plugins.jar 
+
+For database you do not need to do anything (if this is a new plugin installation) since 
+the plugin will automatically create the necessary tables on first run.
 
 You probably need to restart the webapp for the libraries to be available. You can check
 whether or not the plugins (and thus the jar) have been loaded from 
@@ -23,3 +30,14 @@ Class: com.laughingpanda.jira.VersionWorkloadHistoryService
 Delay: <you choose>
 
 You should be ready rock.
+
+UPGRADE
+===========================
+If you are upgrading from an older version of the Agile Plugins, you might need to manually
+alter the database table which the plugin uses for storing the history information.
+
+Check your corresponding database create scripts under <YourDatabase>/create.sql for the table
+definition and check how that differs from your current table definition and alter it to match.
+
+If you don't mind losing the old data then you can of course just drop the table and the new tables 
+will be created by the plugins at startup.
