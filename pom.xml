@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>agile-plugins</groupId>
   <artifactId>agile-plugins</artifactId>
-  <version>0.3-SNAPSHOT-jira-3.9.1</version>
+  <version>0.4-SNAPSHOT</version>
   <name>Agile Plugins for Jira</name>
   
   <packaging>atlassian-plugin</packaging>
@@ -19,7 +19,7 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.6</version>
+      <version>4.8.2</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -28,9 +28,23 @@
       <version>${jira.version}</version>
       <scope>test</scope>
     </dependency>
-    
     <dependency>
-      <groupId>springframework</groupId>
+      <groupId>hsqldb</groupId>
+      <artifactId>hsqldb</artifactId>
+      <version>1.8.0.5</version>
+    </dependency>
+    <dependency>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
+      <version>5.1.11</version>
+    </dependency>
+    <dependency>
+      <groupId>postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <version>8.4-701.jdbc3</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
       <artifactId>spring-jdbc</artifactId>
       <version>1.2.6</version>
     </dependency>
@@ -634,6 +648,14 @@
     </dependency-->
   </dependencies>
   <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+      </resource>
+      <resource>
+        <directory>src/sql</directory>
+      </resource>
+    </resources>
     <plugins>
       <plugin>
         <groupId>com.atlassian.maven.plugins</groupId>
@@ -647,6 +669,7 @@
       </plugin>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
+        <version>2.3.2</version>
         <configuration>
           <source>1.5</source>
           <target>1.5</target>
@@ -666,7 +689,8 @@
     </repository-->
   </repositories>
 
-  <reporting>
+  <!-- disabled for now -->
+  <!--reporting>
     <plugins>
       <plugin>
         <artifactId>maven-changes-plugin</artifactId>
@@ -688,7 +712,7 @@
         <artifactId>simian-maven-plugin</artifactId>
       </plugin>
     </plugins>
-  </reporting>
+  </reporting-->
 
   <properties>
     <jira.version>4.2.2-b589</jira.version>
