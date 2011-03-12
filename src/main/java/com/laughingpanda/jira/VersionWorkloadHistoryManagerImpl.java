@@ -1,7 +1,7 @@
 /*
  * $Id$
  * Copyright (c) 2004
- * Jukka Lindström
+ * Jukka Lindstrï¿½m
  */
 package com.laughingpanda.jira;
 
@@ -41,6 +41,8 @@ public class VersionWorkloadHistoryManagerImpl implements VersionWorkloadHistory
 
     public static DataSource getJiraJNDIDataSource() {
         try {
+            // http://forums.atlassian.com/message.jspa?messageID=257346501
+            Thread.currentThread().setContextClassLoader(VersionWorkloadHistoryManagerImpl.class.getClassLoader().getClass().getClassLoader());
             Context initialContext = new InitialContext();
             if (initialContext == null) { throw new RuntimeException("Init: Cannot get Initial Context"); }
             return (DataSource) initialContext.lookup("java:comp/env/jdbc/JiraDS");
