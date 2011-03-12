@@ -20,7 +20,7 @@ public class VersionWorkloadHistoryManagerImplTest extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
-        manager = new VersionWorkloadHistoryManagerImpl(TestDbUtil.getDataSource());
+        manager = new VersionWorkloadHistoryManagerImpl(DbUtil.getDataSource());
     }
 
     public void testStoringAndLoadingOne() throws Exception {
