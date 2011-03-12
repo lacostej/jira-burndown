@@ -21,7 +21,7 @@ import com.atlassian.jira.ComponentManager;
 import com.atlassian.jira.ManagerFactory;
 import com.atlassian.jira.issue.DefaultIssueFactory;
 import com.atlassian.jira.issue.IssueFactory;
-import com.atlassian.jira.issue.MutableIssue;
+import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.search.SearchRequestManager;
 import com.atlassian.jira.project.ProjectManager;
 import com.atlassian.jira.project.version.Version;
@@ -37,7 +37,7 @@ public class VersionWorkloadHistoryService extends AbstractService {
     private final class StoreHistoryClosure implements Closure {
 
         private final IssueTransformer issueTransformer;
-        private IssueFactory issueFactory = new DefaultIssueFactory(ComponentManager.getInstance().getIssueManager(), ComponentManager.getInstance().getProjectManager(), ComponentManager.getInstance().getVersionManager(), ManagerFactory.getIssueSecurityLevelManager(), ComponentManager.getInstance().getConstantsManager(), ComponentManager.getInstance().getSubTaskManager(), ComponentManager.getInstance().getFieldManager(), ComponentManager.getInstance().getAttachmentManager(), ComponentManager.getInstance().getProjectFactory());
+        private IssueFactory issueFactory = ComponentManager.getInstance().getIssueFactory();
 
         public StoreHistoryClosure(IssueTransformer issueTransformer) {
             this.issueTransformer = issueTransformer;
@@ -54,13 +54,13 @@ public class VersionWorkloadHistoryService extends AbstractService {
 
         private VersionWorkloadHistoryPoint createVersionWorkloadPoint(Version version) throws GenericEntityException {
             log.debug("Calculating workload for version : " + version.getName());
-            Collection<MutableIssue> issues = issueFactory.getIssues(versionManager.getFixIssues(version));
+            Collection<Issue> issues = issueFactory.getIssues(versionManager.getFixIssues(version));
 
             VersionWorkloadHistoryPoint total = new VersionWorkloadHistoryPoint();
             total.versionId = version.getId();
             total.measureTime = new Date();
             total.type = issueTransformer.getTypeId();
-            for (MutableIssue issue : issues) {
+            for (Issue issue : issues) {
                 if (issue == null) continue;
                 VersionWorkloadHistoryPoint point = (VersionWorkloadHistoryPoint) issueTransformer.transform(issue);
                 if (point == null) continue;

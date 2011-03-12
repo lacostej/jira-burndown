@@ -1,9 +1,8 @@
-<!-- the plugin key must be unique, think of it as the 'package' of the plugin -->
-<atlassian-plugin key="com.laughingpanda.jira" name="LaughingPanda">
+<atlassian-plugin key="com.laughingpanda.jira" name="LaughingPanda" plugins-version="2">
 	<!-- a short block describing the plugin itself -->
 	<plugin-info>
 		<description>LaughingPanda</description>
-		<version>0.3-SNAPSHOT</version>
+		<version>${project.version}</version>
 		<application-version min="3.7" max="3.7"/>
 		<vendor name="Laughing Panda" url="http://www.laughingpanda.org"/>
 	</plugin-info>
