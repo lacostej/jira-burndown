@@ -1,1 +1,2 @@
 see http://confluence.atlassian.com/display/DEVNET/Developing+your+Plugin+using+the+Atlassian+Plugin+SDK
+http://confluence.atlassian.com/display/JIRA/Differences+between+Plugins1+and+Plugins2
