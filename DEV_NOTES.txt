@@ -28,6 +28,9 @@ Task:
 
 * portlet URL:
 
+It should be possible to write a simple gadget that pulls the graph from the existing portlet. The portlet can be retrieved here, but for some reasons, graph generation can take quite a bit of time on my test env.
+Strange, the code just involves a few calls to JFreeChart.
+
 http://localhost:2990/jira/secure/RunPortlet.jspa?portletKey=com.laughingpanda.jira:versionWorkloadChart&chart.height=300&chart.width=500&startDate=2011-03-13&versionId=10000    &typeId=-1   &os_username=XXX&os_password=XXX
 
 
