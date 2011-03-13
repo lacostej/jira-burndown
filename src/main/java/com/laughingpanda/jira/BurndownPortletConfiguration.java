@@ -58,7 +58,7 @@ class BurndownPortletConfiguration {
     public <T> T getValue(Class<T> type, String propertyName, T defaultValue) {
         try {
             String propertyValue = config.getProperty(propertyName);
-            if (propertyValue != null) { return type.getConstructor(String.class).newInstance(propertyValue); }
+            if (propertyValue != null && propertyValue.length() > 0) { return type.getConstructor(String.class).newInstance(propertyValue); }
         } catch (ObjectConfigurationException e) {
             // this is just fine, it means that it cannot be read for now.
         } catch (Exception e) {

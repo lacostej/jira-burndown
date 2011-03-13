@@ -5,140 +5,115 @@
  */
 package com.laughingpanda.jira;
 
-import java.io.File;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
-import org.ofbiz.core.entity.GenericValue;
-import org.ofbiz.core.entity.model.ModelEntity;
-
+import com.atlassian.jira.ComponentManager;
 import com.atlassian.jira.config.properties.ApplicationProperties;
 import com.atlassian.jira.portal.PortletConfiguration;
 import com.atlassian.jira.project.version.Version;
 import com.atlassian.jira.project.version.VersionManager;
+import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.security.PermissionManager;
-import com.laughingpanda.mocked.MockFactory;
-import com.laughingpanda.mocked.NullValues;
+import com.opensymphony.user.Entity.Accessor;
 import com.opensymphony.user.ProviderAccessor;
 import com.opensymphony.user.User;
-import com.opensymphony.user.Entity.Accessor;
 import com.opensymphony.user.provider.CredentialsProvider;
-import static org.mockito.Mockito.*;
-import org.junit.Ignore;
-import org.junit.Test;
 import org.junit.Before;
-import static org.junit.Assert.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Matchers;
+import org.ofbiz.core.entity.GenericValue;
+import org.ofbiz.core.entity.model.ModelEntity;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.core.classloader.annotations.SuppressStaticInitializationFor;
+import org.powermock.modules.junit4.PowerMockRunner;
 
+import javax.swing.*;
+import java.io.File;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({ComponentManager.class, UIManager.class})
+@SuppressStaticInitializationFor("com.atlassian.jira.ComponentManager")
 public class ChartPortletTest {
 
     ChartPortlet portlet;
     private PortletConfiguration config;
 
-    private MockProviderAccessor accessor;
-    private MockJiraAuthenticationContext authenticationContext;
+    private ProviderAccessor providerAccessor;
+    private CredentialsProvider credentialsProvider;
+    private PermissionManager permissionManager;
+    private JiraAuthenticationContext authenticationContext;
     private User authenticatedUser;
-    static abstract class MockVersion implements Version {
-
-        public GenericValue project;
-
-        public MockVersion() {
-        }
-
-        public Long getId() {
-            return new Long(1);
-        }
-
-        public String getName() {
-            return "TestVersion";
-        }
-
-        public Date getReleaseDate() {
-            return new Date(0);
-        }
-
-        public boolean isArchived() {
-            return false;
-        }
-
-        public boolean isReleased() {
-            return false;
-        }
-
-        public GenericValue getProject() {
-            return project;
-        }
-    }
-
-    static abstract class MockProviderAccessor implements ProviderAccessor, CredentialsProvider, PermissionManager {
-
-        public List<GenericValue> accessibleProjects = new LinkedList<GenericValue>();
-
-        public CredentialsProvider getCredentialsProvider(String arg0) {
-            return this;
-        }
-
-        public boolean load(String arg0, Accessor arg1) {
-            return true;
-        }
-
-        public Collection getProjects(int permissionType, User user) {
-            return accessibleProjects;
-        }
-
-        public boolean hasPermission(int permission, User user) {
-            return false;
-        }
-
-    }
-
-    static abstract class MockVersionManager implements VersionWorkloadHistoryManager, VersionManager {
-
-        public Map<Long, Version> versions = new HashMap<Long, Version>();
-
-        public MockVersionManager() {
-        }
-
-        public Version getVersion(Long id) {
-            return versions.get(id);
-        }
-
-        public List<VersionWorkloadHistoryPoint> getWorkloadStartingFromMaxDateBeforeGivenDate(Long versionId, Long type, Date startDate) {
-            return Arrays.asList();
-        }
-    }
 
     @Before
     public void setUp() throws Exception {
-        NullValues.useDefaultPrimitiveValues();
-        authenticationContext = MockFactory.makeMock(MockJiraAuthenticationContext.class);
-        accessor = MockFactory.makeMock(MockProviderAccessor.class);
-        authenticatedUser = new User("name", accessor);
-        authenticationContext.setUser(authenticatedUser);
+        // without this, we get a
+        // java.lang.VerifyError: (class: javax/swing/plaf/metal/MetalLookAndFeel, method: getLayoutStyle signature: ()Ljavax/swing/LayoutStyle;) Wrong return type in function
+        // at javax.swing.UIManager.getColor(UIManager.java:675)
+        // at org.jfree.chart.JFreeChart.<clinit>(JFreeChart.java:239)
+        PowerMockito.mockStatic(UIManager.class);
+
+        PowerMockito.mockStatic(ComponentManager.class);
+        ComponentManager mockComponentManager = mock(ComponentManager.class);
+        when(ComponentManager.getInstance()).thenReturn(mockComponentManager);
+
+        authenticationContext = mock(JiraAuthenticationContext.class);
+        providerAccessor = mock(ProviderAccessor.class);
+        credentialsProvider = mock(CredentialsProvider.class);
+        when(providerAccessor.getCredentialsProvider((String) any())).thenReturn(credentialsProvider);
+        permissionManager = mock(PermissionManager.class);
+        authenticatedUser = new User("name", providerAccessor);
+        when(credentialsProvider.load((String) any(), (Accessor) any())).thenReturn(true);
+        when(permissionManager.hasPermission(anyInt(), Matchers.<User>anyObject())).thenReturn(false);
+        when(authenticationContext.getUser()).thenReturn(authenticatedUser);
+
+        ModelEntity project = mock(ModelEntity.class);
+        when(project.getEntityName()).thenReturn("EntityName");
+        GenericValue value = new GenericValue(project);
+
+        Version version = createVersion(value);
+
         config = mock(PortletConfiguration.class);
-        MockVersionManager mock = MockFactory.makeMock(MockVersionManager.class);
-        portlet = new ChartPortlet(authenticationContext, mock, mock, accessor, NullValues.makeMock(ApplicationProperties.class)) {
+        VersionWorkloadHistoryManager manager = mock(VersionWorkloadHistoryManager.class);
+        when(manager.getWorkloadStartingFromMaxDateBeforeGivenDate((Long) any(), (Long) any(), (java.util.Date) any())).thenReturn(new java.util.ArrayList());
+        VersionManager versions = mock(VersionManager.class);
+        when(versions.getVersion(anyLong())).thenReturn(version);
+        ApplicationProperties applicationProperties = mock(ApplicationProperties.class);
+
+        portlet = new ChartPortlet(authenticationContext, manager, versions, permissionManager, applicationProperties) {
             @Override
             protected boolean createNewImage(File imageFile) {
                 return true;
             }
         };
-        when(config.getProperty("chart.width")).thenReturn("640");
-        when(config.getProperty("chart.height")).thenReturn("400");
-        when(config.getProperty("versionId")).thenReturn("1");
+        when(config.getLongProperty("chart.width")).thenReturn(640L);
+        when(config.getLongProperty("chart.height")).thenReturn(400L);
+        when(config.getLongProperty("versionId")).thenReturn(1L);
         when(config.getProperty("startDate")).thenReturn("2005-01-01");
 
-        GenericValue project = new GenericValue(MockFactory.makeMock(ModelEntity.class));
-        accessor.accessibleProjects.add(project);
+        List<GenericValue> projects = new java.util.LinkedList<GenericValue>();
+        projects.add(value);
+        when(permissionManager.getProjects(anyInt(), (User) any())).thenReturn(projects);
 
-        MockVersion version = MockFactory.makeMock(MockVersion.class);
-        version.project = project;
+        //applicationProperties.get
 
-        mock.versions.put(1L, version);
+
+    }
+
+    private Version createVersion(GenericValue value) {
+        Version version = mock(Version.class);
+        when(version.getProject()).thenReturn(value);
+        when(version.getName()).thenReturn("TestVersion");
+        when(version.getReleaseDate()).thenReturn(new Date(0));
+        when(version.isArchived()).thenReturn(false);
+        when(version.isReleased()).thenReturn(false);
+        when(version.getId()).thenReturn(1L);
+        return version;
     }
 
     @Test
@@ -150,10 +125,10 @@ public class ChartPortletTest {
         }
     }
 
-    @Ignore("broken in jira 4.2.2")
     @Test
     public void testBasic() {
         Map params = portlet.getVelocityParams(config);
+        assertEquals(null, params.get("errorMessage"));
         assertEquals("public1--1-true-false-false-2005-01-01-640x400", params.get("chartFilename"));
         assertEquals("public1--1-true-false-false-2005-01-01-640x400", params.get("imageMapName"));
         assertEquals("1", params.get("versionId"));
@@ -161,21 +136,21 @@ public class ChartPortletTest {
         assertEquals(true, params.get("loggedin"));
         assertContains((String) params.get("imageMap"), "title");
     }
-    
+
     public static void assertContains(String where, String what) {
         assertTrue(String.format("'%s' didn't contain '%s'.", where, what), where.contains(what));
     }
 
-    @Ignore
     @Test
     public void testUserHasNoRights() {
-        accessor.accessibleProjects.clear();
+        List<GenericValue> projects = new java.util.LinkedList<GenericValue>();
+        when(permissionManager.getProjects(anyInt(), (User) any())).thenReturn(projects);
+
         Map params = portlet.getVelocityParams(config);
         assertFalse(params.containsKey("chartFilename"));
         assertEquals("You don't have correct privileges to view this data.", params.get("errorMessage"));
     }
 
-    @Ignore
     @Test
     public void testNoStartDateConfigured() throws Exception {
         when(config.getProperty("startDate")).thenReturn(null);

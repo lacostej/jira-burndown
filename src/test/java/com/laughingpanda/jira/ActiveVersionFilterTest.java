@@ -4,7 +4,7 @@ package com.laughingpanda.jira;
 import junit.framework.TestCase;
 
 import com.atlassian.jira.project.version.Version;
-import com.laughingpanda.mocked.MockFactory;
+import static org.mockito.Mockito.*;
 
 public class ActiveVersionFilterTest extends TestCase {
 
@@ -19,35 +19,22 @@ public class ActiveVersionFilterTest extends TestCase {
     }
     
     public void testArchivedVersionReturnFalse() throws Exception {
-        assertFalse(filter.evaluate(MockFactory.makeMock(MockVersion.class, true, false)));
+        assertFalse(filter.evaluate(makeMockVersion(true, false)));
     }
     
     public void testReleasedVersionReturnsFalse() throws Exception {
-        assertFalse(filter.evaluate(MockFactory.makeMock(MockVersion.class, false, true)));
+        assertFalse(filter.evaluate(makeMockVersion(false, true)));
     }
     
     public void testActiveVersionReturnTrue() throws Exception {
-        assertTrue(filter.evaluate(MockFactory.makeMock(MockVersion.class, false, false)));
+        assertTrue(filter.evaluate(makeMockVersion(false, false)));
     }
-    
-    
-    static abstract class MockVersion implements Version {
-        
-        private final boolean released;
-        private final boolean archived;
 
-        public MockVersion(boolean archived, boolean released) {
-            this.archived = archived;
-            this.released = released;
-        }
-        
-        public boolean isArchived() {
-            return archived;
-        }
-        
-        public boolean isReleased() {
-            return released;
-        }
+    public static Version makeMockVersion(boolean archived, boolean released) {
+      Version version = mock(Version.class);
+      when(version.isReleased()).thenReturn(released);
+      when(version.isArchived()).thenReturn(archived);
+      return version;
     }
 
 }

@@ -55,19 +55,24 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>mocked</groupId>
-      <artifactId>mocked</artifactId>
-      <version>0.4-java5-20051126</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-all</artifactId>
       <version>1.8.5</version>
       <scope>test</scope>
     </dependency>
-    
-
+    <dependency>
+      <groupId>org.powermock</groupId>
+      <artifactId>powermock-module-junit4</artifactId>
+      <version>${powermock.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.powermock</groupId>
+      <artifactId>powermock-api-mockito</artifactId>
+      <version>${powermock.version}</version>
+      <scope>test</scope>
+    </dependency>
+ 
     <!--dependency>
       <groupId>atlassian-core</groupId>
       <artifactId>atlassian-core</artifactId>
@@ -723,5 +728,6 @@
   <properties>
     <jira.version>4.2.2-b589</jira.version>
     <jira.data.version>4.1.1</jira.data.version>
+    <powermock.version>1.4.8</powermock.version>
   </properties>
 </project>
