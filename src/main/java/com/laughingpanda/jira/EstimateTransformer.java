@@ -1,7 +1,4 @@
-
 package com.laughingpanda.jira;
-
-import org.apache.commons.collections.Transformer;
 
 import com.atlassian.jira.issue.MutableIssue;
 

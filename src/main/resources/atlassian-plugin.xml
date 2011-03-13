@@ -1,4 +1,4 @@
-<atlassian-plugin key="com.laughingpanda.jira" name="LaughingPanda" plugins-version="2">
+<atlassian-plugin key="com.laughingpanda.jira" name="LaughingPanda" plugins-version="1">
   <!-- a short block describing the plugin itself -->
   <plugin-info>
     <description>LaughingPanda</description>

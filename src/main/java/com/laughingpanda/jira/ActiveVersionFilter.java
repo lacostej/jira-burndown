@@ -1,4 +1,3 @@
-
 package com.laughingpanda.jira;
 
 import org.apache.commons.collections.Predicate;

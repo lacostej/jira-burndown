@@ -1,7 +1,7 @@
 /*
  * $Id$
  * Copyright (c) 2004
- * Jukka Lindström
+ * Jukka Lindstrï¿½m
  */
 package com.laughingpanda.jira;
 
@@ -10,7 +10,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Map;
 

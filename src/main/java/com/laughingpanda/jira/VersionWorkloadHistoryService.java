@@ -1,7 +1,7 @@
 /*
  * $Id$
  * Copyright (c) 2004
- * Jukka Lindström
+ * Jukka Lindstrï¿½m
  */
 package com.laughingpanda.jira;
 
@@ -19,7 +19,6 @@ import com.atlassian.configurable.ObjectConfiguration;
 import com.atlassian.configurable.ObjectConfigurationException;
 import com.atlassian.jira.ComponentManager;
 import com.atlassian.jira.ManagerFactory;
-import com.atlassian.jira.issue.DefaultIssueFactory;
 import com.atlassian.jira.issue.IssueFactory;
 import com.atlassian.jira.issue.Issue;
 import com.atlassian.jira.issue.search.SearchRequestManager;

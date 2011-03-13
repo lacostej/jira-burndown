@@ -17,7 +17,6 @@ import java.util.Map;
 import org.ofbiz.core.entity.GenericValue;
 import org.ofbiz.core.entity.model.ModelEntity;
 
-import com.atlassian.configurable.ObjectConfigurationException;
 import com.atlassian.jira.config.properties.ApplicationProperties;
 import com.atlassian.jira.portal.PortletConfiguration;
 import com.atlassian.jira.project.version.Version;

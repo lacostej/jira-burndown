@@ -1,9 +1,11 @@
 /*
  * $Id$
  * Copyright (c) 2004
- * Jukka Lindström
+ * Jukka Lindstrï¿½m
  */
 package com.laughingpanda.jira;
+
+import com.laughingpanda.jira.VersionWorkloadHistoryPoint;
 
 import java.util.Date;
 import java.util.List;

@@ -1,2 +1,31 @@
-see http://confluence.atlassian.com/display/DEVNET/Developing+your+Plugin+using+the+Atlassian+Plugin+SDK
-http://confluence.atlassian.com/display/JIRA/Differences+between+Plugins1+and+Plugins2
+See http://confluence.atlassian.com/display/DEVNET/Developing+your+Plugin+using+the+Atlassian+Plugin+SDK for general notes regarding plugin development.
+
+Notes:
+* The burndown plugin is based on Portlets which aren't supported in Jira 4.2. It needs to be converted to Gadgets
+http://confluence.atlassian.com/display/DEV/Legacy+Portlet+Bridge
+http://confluence.atlassian.com/display/JIRA/Writing+a+Plugin+Upgrade+Task+for+JIRA+4.0
+
+There's a bridge to support old portlets but I think it was only working for Jira 4.0
+http://jira.atlassian.com/browse/JRA-18521
+http://jira.atlassian.com/browse/CONF-19213
+
+* don't try (yet) porting the plugin to plugins-version="2" (http://confluence.atlassian.com/display/JIRA/Differences+between+Plugins1+and+Plugins2).
+  It will cause some issues:
+** you will have classloader issues in the component instantiation (
+  You might need to add something like that to get the JDNI source location to work
+  VersionWorkloadHistoryManagerImpl#getJiraJNDIDataSource
+  Thread.currentThread().setContextClassLoader(VersionWorkloadHistoryManagerImpl.class.getClassLoader().getClass().getClassLoader());
+
+** the service won't run as the plugin needs to be deployed under WEB-INF/lib
+
+Today the plugin works in the following way
+* a service collects data and stores it in custom tables
+* the portlet is triggered by velocity.
+  ChartPortlet#getVelocityParams retrieves the velocity 'model' and passes it on to versionWorkloadChart.vm for displaying the generated image.
+
+Task:
+* convert portlet to Gadget
+
+Some interesting links
+http://confluence.atlassian.com/display/GADGETDEV/Packaging+your+Gadget+as+an+Atlassian+Plugin
+http://localhost:2990/jira/rest/gadgets/1.0/g/com.atlassian.streams.streams-jira-plugin:activitystream-gadget/gadgets/activitystream-gadget.xml
