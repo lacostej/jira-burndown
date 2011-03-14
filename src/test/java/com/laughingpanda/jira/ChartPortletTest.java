@@ -99,10 +99,6 @@ public class ChartPortletTest {
         List<GenericValue> projects = new java.util.LinkedList<GenericValue>();
         projects.add(value);
         when(permissionManager.getProjects(anyInt(), (User) any())).thenReturn(projects);
-
-        //applicationProperties.get
-
-
     }
 
     private Version createVersion(GenericValue value) {
