@@ -33,7 +33,10 @@ Strange, the code just involves a few calls to JFreeChart.
 
 http://localhost:2990/jira/secure/RunPortlet.jspa?portletKey=com.laughingpanda.jira:versionWorkloadChart&chart.height=300&chart.width=500&startDate=2011-03-13&versionId=10000    &typeId=-1   &os_username=XXX&os_password=XXX
 
+I've tried writing a gadget, but we would need to make the plugin an OSGi type of plugin first.
+This would require to split the service and the plugin in 2.
 
+http://confluence.atlassian.com/display/JIRA/Gadget+Plugin+Module
 
 Some interesting links
 http://confluence.atlassian.com/display/GADGETDEV/Packaging+your+Gadget+as+an+Atlassian+Plugin

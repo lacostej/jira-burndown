@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Module>
+  <ModulePrefs
+      title="Hellowworld"
+   >
+    <Require feature="dynamic-height" />
+    <Optional feature="auth-refresh"/>
+    <Require feature="oauthpopup" />
+    <Require feature="setprefs" />
+    <Require feature="settitle" />
+    <Require feature="views" />
+    <Optional feature="atlassian.util" />
+    <Optional feature="gadget-directory">
+      <Param name="categories">JIRA Charts</Param>
+    </Optional>
+    <Require feature="dynamic-height" />
+    <!--Require feature="settitle" /-->
+    #oauth
+    #supportedLocales('gadget.common,laughingpanda.jira')
+  </ModulePrefs>
+  <Content type="html">
+  <![CDATA[
+    #requireResource("com.atlassian.gadgets.publisher:ajs-gadgets")
+    #includeResources()
+    (function () {
+        /* (2) Construct and initialise the gadget */
+        var gadget = AJS.Gadget({
+          baseUrl: "__ATLASSIAN_BASE_URL__", /* (3) Used to make base url available to gadget */
+          useOauth: "/rest/gadget/1.0/currentUser",
+          view: {
+            onResizeAdjustHeight: true,
+            onResizeReload: true,
+            enableReload: true,
+            template: function(args) {
+              var gadget = this;
+              var path = "/secure/RunPortlet.jspa?portletKey=com.laughingpanda.jira:versionWorkloadChart&chart.height=300&chart.width=500&startDate=2011-03-07&versionId=10000&typeId=-1";
+
+              AJS.$.ajax({
+                url: "/rest/gadget/1.0/currentUser",
+                type: "GET",
+                dataType: "text",
+                success: function(msg) {
+                  alert(msg);
+                  gadget.getView().html(msg.text);
+                }
+              });
+            }]
+          }
+        });
+      })();
+    </script>
+  ]]>
+  </Content>
+</Module>

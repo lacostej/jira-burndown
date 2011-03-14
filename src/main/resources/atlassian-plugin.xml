@@ -6,6 +6,8 @@
     <application-version min="3.7" max="3.7"/>
     <vendor name="Laughing Panda" url="http://www.laughingpanda.org"/>
   </plugin-info>
+  <!-- for this o work, the plugin needs to be converted to a type 2 OSGi plugin See DEV_NOTES.txt -->
+  <!--gadget key="burndown-gadget" name="Laughing Panda Burndown Gadget" location="gadget.xml"/-->
   <portlet key="versionWorkloadChart" name="Chart Portlet" class="com.laughingpanda.jira.ChartPortlet">
     <description key="portlet.versionworkloadchart.description">i18n description</description>
     <resource type="i18n" name="i18n" location="com.laughingpanda.jira.versionWorkloadChart"/>
