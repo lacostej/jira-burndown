@@ -41,3 +41,5 @@ http://confluence.atlassian.com/display/JIRA/Gadget+Plugin+Module
 Some interesting links
 http://confluence.atlassian.com/display/GADGETDEV/Packaging+your+Gadget+as+an+Atlassian+Plugin
 http://localhost:2990/jira/rest/gadgets/1.0/g/com.atlassian.streams.streams-jira-plugin:activitystream-gadget/gadgets/activitystream-gadget.xml
+
+See also http://confluence.atlassian.com/display/DEVNET/AMPS+Plugin+for+Maven

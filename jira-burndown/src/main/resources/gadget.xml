@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Module>
+  <ModulePrefs
+      title="Jira Burndown"
+   >
+  <!--Require feature="dynamic-height" />
+  <Optional feature="auth-refresh"/-->
+  <Require feature="oauthpopup" />
+  <Require feature="setprefs" />
+  <!--Require feature="settitle" /-->
+  <Require feature="views" />
+  <Optional feature="atlassian.util" />
+  <Optional feature="gadget-directory">
+    <Param name="categories">JIRA Charts</Param>
+  </Optional>
+  <!--Require feature="settitle" /-->
+  #oauth
+  #supportedLocales('gadget.common,no.spk.jira')
+  </ModulePrefs>
+  <Content type="html" view="profile">
+  <![CDATA[
+    #requireResource("com.atlassian.jira.gadgets:common")
+    #requireResource("com.atlassian.gadgets.publisher:ajs-gadgets")
+    #requireResource("no.spk.jira:jira-burndown")
+    #includeResources()
+
+    <div id="intro-content"><div class="fullyCentered loading">Loading...</div></div>
+    <script type="text/javascript">
+    (function () {
+        /* (2) Construct and initialise the gadget */
+        var gadget = AJS.Gadget({
+          baseUrl: "__ATLASSIAN_BASE_URL__", /* (3) Used to make base url available to gadget */
+          useOauth: "/rest/gadget/1.0/currentUser",
+          view: {
+            //onResizeAdjustHeight: true,
+            //onResizeReload: true,
+            enableReload: true,
+            template: function(args) {
+              var gadget = this;
+              var path = "/secure/RunPortlet.jspa?portletKey=com.laughingpanda.jira:versionWorkloadChart&chart.height=300&chart.width=500&startDate=2011-03-07&versionId=10000&typeId=-1";
+              
+              AJS.$.ajax({
+                url: path,
+                type: "GET",
+                // data: ({projectsOnly : "true"}),
+                dataType: "text",
+                success: function(msg) {
+                  html = JBD.stripPortletOutputDecoration(msg);
+                  AJS.$("#intro-content").removeClass("loading").html(html);
+                },
+                error: function(msg) {
+                  alert(msg);
+                }
+              });
+            }
+          }
+        });
+      })();
+    </script>
+  ]]>
+  </Content>
+</Module>

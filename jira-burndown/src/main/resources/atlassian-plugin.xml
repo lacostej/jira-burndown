@@ -1,0 +1,31 @@
+<atlassian-plugin key="no.spk.jira" name="JiraBurndown" plugins-version="2">
+  <!-- a short block describing the plugin itself -->
+  <plugin-info>
+    <description>SPK Jira Burndown</description>
+    <version>${project.version}</version>
+    <vendor name="SPK" url="http://www.spk.no"/>
+    <application-version min="4.0"/>
+  </plugin-info>
+  <gadget key="burndown-gadget" name="SPK Burndown Gadget" location="gadget.xml"/>
+  
+   <resource type="download" name="i18n/ALL_ALL.xml" location="i18n/ALL_ALL.xml">
+     <param name="content-type" value="text/xml; charset=UTF-8"/>
+   </resource>
+
+  <web-resource key="jira-burndown">
+    <resource type="download" name="gadget.js" location="gadget.js">
+      <property key="content-type" value="text/javascript"/>
+    </resource>
+    <!--resource type="download" name="gadget.css" location="gadget.css">
+      <property key="content-type" value="text/css"/>
+    </resource-->
+  </web-resource>
+  
+  <!-- in the future we will move the burn down code in here -->
+  <!--rest key="tutorial-gadget-rest-resources" path="/tutorial-gadget" version="1.0">
+        <description>Provides the REST resource for the project list.</description>
+  </rest-->
+
+  <component-import key="userManager" interface="com.atlassian.sal.api.user.UserManager"/>
+</atlassian-plugin>
+
