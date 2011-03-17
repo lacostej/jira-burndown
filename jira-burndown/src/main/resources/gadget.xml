@@ -71,7 +71,7 @@
                   AJS.$("#intro-content").removeClass("loading").html(html);
                 },
                 error: function(msg) {
-                  alert(msg);
+                  // alert(msg);
                 }
               });
             }
