@@ -32,20 +32,32 @@ var JBD = new function() {
     return html;
   };
   
+  
   this.config = function(prefs) {
+    if (prefs) {
+      this.prefs = prefs
+    } else {
+      if (!this.prefs) {
+        this.prefs = new gadgets.Prefs();
+      }
+    }
+    if (! this.prefs) {
+      throw "gadgets.Prefs() never initialized";
+    }
     return {
-      title : prefs.getString("Title"),
-      versionId : prefs.getInt("VersionId"),
-      typeId : prefs.getInt("TypeId"),
-      height : prefs.getInt("Height"),
-      width : prefs.getInt("Width"),
-      includeLegend : prefs.getBool("IncludeLegend"),
-      includeTrendline : prefs.getBool("IncludeTrendline"),
-      startDate : prefs.getString("StartDate")
+      title : this.prefs.getString("Title"),
+      versionId : this.prefs.getInt("VersionId"),
+      typeId : this.prefs.getInt("TypeId"),
+      height : this.prefs.getInt("Height"),
+      width : this.prefs.getInt("Width"),
+      includeLegend : this.prefs.getBool("IncludeLegend"),
+      includeTrendline : this.prefs.getBool("IncludeTrendline"),
+      startDate : this.prefs.getString("StartDate")
     };
   };
   
-  this.runPortletPath = function(conf) {
+  this.runPortletPath = function() {
+    var conf = this.config();
     return "/secure/RunPortlet.jspa?portletKey=com.laughingpanda.jira:versionWorkloadChart&chart.height="
                 + conf.height + "&chart.width=" + conf.width + "&startDate=" + conf.startDate
                 + "&versionId=" + conf.versionId + "&typeId=" + conf.typeId

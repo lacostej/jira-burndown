@@ -45,14 +45,13 @@
             enableReload: true,
             template: function(args) {
               var gadget = this;
-              var prefs = new gadgets.Prefs();
-              var conf = JBD.config(prefs);
+              var conf = JBD.config();
               if (conf.title) {
                 gadgets.window.setTitle(conf.title);
               }
               
               AJS.$.ajax({
-                url: JBD.runPortletPath(conf),
+                url: JBD.runPortletPath(),
                 type: "GET",
                 // data: ({projectsOnly : "true"}),
                 dataType: "text",
