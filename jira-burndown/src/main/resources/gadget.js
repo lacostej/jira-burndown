@@ -31,4 +31,24 @@ var JBD = new function() {
     html = "<div class='wrappedPortlet'>"+html+"</div>";
     return html;
   };
+  
+  this.config = function(prefs) {
+    return {
+      title : prefs.getString("Title"),
+      versionId : prefs.getInt("VersionId"),
+      typeId : prefs.getInt("TypeId"),
+      height : prefs.getInt("Height"),
+      width : prefs.getInt("Width"),
+      includeLegend : prefs.getBool("IncludeLegend"),
+      includeTrendline : prefs.getBool("IncludeTrendline"),
+      startDate : prefs.getString("StartDate")
+    };
+  };
+  
+  this.runPortletPath = function(conf) {
+    return "/secure/RunPortlet.jspa?portletKey=com.laughingpanda.jira:versionWorkloadChart&chart.height="
+                + conf.height + "&chart.width=" + conf.width + "&startDate=" + conf.startDate
+                + "&versionId=" + conf.versionId + "&typeId=" + conf.typeId
+                + "&chart.includeLegend=" + conf.includeLegend + "&chart.includeTrendline=" + conf.includeTrendline;
+  };
 };

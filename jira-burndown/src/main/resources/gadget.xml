@@ -46,23 +46,13 @@
             template: function(args) {
               var gadget = this;
               var prefs = new gadgets.Prefs();
-              var title = prefs.getString("Title");
-              if (title) {
-                gadgets.window.setTitle(title);
+              var conf = JBD.config(prefs);
+              if (conf.title) {
+                gadgets.window.setTitle(conf.title);
               }
-              var versionId = prefs.getInt("VersionId");
-              var typeId = prefs.getInt("TypeId");
-              var height = prefs.getInt("Height");
-              var width = prefs.getInt("Width");
-              var includeLegend = prefs.getBool("IncludeLegend");
-              var includeTrendLine = prefs.getBool("IncludeTrendLine");
-              var startDate = prefs.getString("StartDate");
-              var path = "/secure/RunPortlet.jspa?portletKey=com.laughingpanda.jira:versionWorkloadChart&chart.height="
-                + height + "&chart.width=" + width + "&startDate=" + startDate + "&versionId=" + versionId + "&typeId=" + typeId
-                + "&chart.includeLegend=" + includeLegend + "&chart.includeTrendLine=" + includeTrendLine;
               
               AJS.$.ajax({
-                url: path,
+                url: JBD.runPortletPath(conf),
                 type: "GET",
                 // data: ({projectsOnly : "true"}),
                 dataType: "text",
