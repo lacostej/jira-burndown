@@ -1,7 +1,11 @@
 originally from laughingpanda.org, a Jira burndown chart plugin.
 
-So far I am just trying to get the plugin to deploy properly. Will update when it runs.
+So far I am just trying to get the plugin to deploy properly. Plugin now works. It is made of 2 plugins. The old agile-plugins made to work with 4.2, and a new plugin that contains a gadget that connects to the old plugin.
 
-The main task is to convert the portlet to gadget
+For improvements:
+* the gadget configuration should be rewritten to be more user friendly, with a proper REST interface to pull the available project and project versions
+* the old plugin features should be migrated into the new plugin to make things more Jira 4 like. I.e.
+** we should expose results using REST instead of through RunPortlet
+** we could rewrite the service to allow deployment as plugin version 2 types.
 
 See DEV_NOTES.txt and the issue tracker https://github.com/lacostej/jira-burndown/issues if you want to help
