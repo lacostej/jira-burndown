@@ -1,0 +1,1 @@
+To install the plugins in Jira 4.2.x, install agile-plugins-0.4 and spring 2.5.6 under jira/WEB_INF/lib then install jira-burndown plugin as normal plugin.
