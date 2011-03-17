@@ -7,16 +7,16 @@
   <Optional feature="auth-refresh"/-->
   <Require feature="oauthpopup" />
   <Require feature="setprefs" />
-  <!--Require feature="settitle" /-->
+  <Require feature="settitle" />
   <Require feature="views" />
   <Optional feature="atlassian.util" />
   <Optional feature="gadget-directory">
     <Param name="categories">JIRA Charts</Param>
   </Optional>
-  <!--Require feature="settitle" /-->
   #oauth
   #supportedLocales('gadget.common,no.spk.jira')
   </ModulePrefs>
+  <UserPref name="Title" display_name="Title. Blank for default" default_value="" />
   <!-- we really want to have user friendly pickers here... proof of concept only -->
   <UserPref name="VersionId" display_name="Jira Project version Id" default_value="10000" />
   <UserPref name="StartDate" display_name="Start Date" default_value="2011-03-17" />
@@ -46,6 +46,10 @@
             template: function(args) {
               var gadget = this;
               var prefs = new gadgets.Prefs();
+              var title = prefs.getString("Title");
+              if (title) {
+                gadgets.window.setTitle(title);
+              }
               var versionId = prefs.getInt("VersionId");
               var typeId = prefs.getInt("TypeId");
               var height = prefs.getInt("Height");
