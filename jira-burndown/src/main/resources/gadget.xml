@@ -17,6 +17,14 @@
   #oauth
   #supportedLocales('gadget.common,no.spk.jira')
   </ModulePrefs>
+  <!-- we really want to have user friendly pickers here... proof of concept only -->
+  <UserPref name="VersionId" display_name="Jira Project version Id" default_value="10000" />
+  <UserPref name="StartDate" display_name="Start Date" default_value="2011-03-17" />
+  <UserPref name="Height" display_name="Height" default_value="300" />
+  <UserPref name="Width" display_name="Width" default_value="500" />
+  <UserPref name="TypeId" display_name="Estimate Type Id (default: -1 = hours of work)" default_value="-1" />
+  <UserPref name="IncludeLegend" display_name="Include Legend" datatype="bool" default_value="false" />
+  <UserPref name="IncludeTrendline" display_name="Include Trend Line" datatype="bool" default_value="false" />
   <Content type="html" view="profile">
   <![CDATA[
     #requireResource("com.atlassian.jira.gadgets:common")
@@ -37,7 +45,17 @@
             enableReload: true,
             template: function(args) {
               var gadget = this;
-              var path = "/secure/RunPortlet.jspa?portletKey=com.laughingpanda.jira:versionWorkloadChart&chart.height=300&chart.width=500&startDate=2011-03-07&versionId=10000&typeId=-1";
+              var prefs = new gadgets.Prefs();
+              var versionId = prefs.getInt("VersionId");
+              var typeId = prefs.getInt("TypeId");
+              var height = prefs.getInt("Height");
+              var width = prefs.getInt("Width");
+              var includeLegend = prefs.getBool("IncludeLegend");
+              var includeTrendLine = prefs.getBool("IncludeTrendLine");
+              var startDate = prefs.getString("StartDate");
+              var path = "/secure/RunPortlet.jspa?portletKey=com.laughingpanda.jira:versionWorkloadChart&chart.height="
+                + height + "&chart.width=" + width + "&startDate=" + startDate + "&versionId=" + versionId + "&typeId=" + typeId
+                + "&chart.includeLegend=" + includeLegend + "&chart.includeTrendLine=" + includeTrendLine;
               
               AJS.$.ajax({
                 url: path,

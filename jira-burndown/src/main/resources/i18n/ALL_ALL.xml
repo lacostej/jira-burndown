@@ -1,0 +1,4 @@
+<messagebundle>
+    <msg name="gadget.title">Jira Burndown Gadget</msg>
+    <msg name="gadget.description">A Gadget to display burndown charts in Jira</msg>
+</messagebundle>
